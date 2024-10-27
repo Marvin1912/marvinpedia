@@ -9,10 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.5.12"
+    "markdown-it": "^14.1.0",
+    "vue": "^3.5.12",
+    "vue-router": "^4.0.13"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.4",
+    "unplugin-vue-markdown": "^0.26.2",
     "vite": "^5.4.10"
   }
 }
