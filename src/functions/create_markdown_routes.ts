@@ -1,14 +1,13 @@
 import fm from "front-matter"
 
-export const markDownBasedComponents = async () => {
+export const markDownBasedComponents = async (topic) => {
 
     let mdComponents = [];
 
     for (const file in import.meta.glob('@/assets/markdown/*.md')) {
         let fileName = file.match(/\/([^\/]+)\.md$/)?.[1] ?? 'not-found';
         mdComponents.push({
-            path: `/wiki/${fileName}`,
-            name: fileName,
+            path: `/wiki/${topic}/${fileName}`,
             displayName: fileName.replace(/-/g, ' '),
             component: async () => importFile(file),
             metaAttributes: await getMetaAttributes(file)

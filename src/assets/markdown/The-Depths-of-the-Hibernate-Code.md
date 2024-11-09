@@ -1,5 +1,6 @@
 ---
 name: The Depths Of The Hibernate Code
+topic: hibernate
 ---
 
 # The Depths Of The Hibernate Code

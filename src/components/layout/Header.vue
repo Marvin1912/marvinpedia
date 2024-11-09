@@ -1,12 +1,10 @@
 <template>
   <div class="header">
     <div class="header-name">
-      <img class="main-icon" src="@/components/icons/main-icon.png" alt="" height="75" width="75" /> />
+      <router-link to="/">
+        <img class="main-icon" src="@/components/icons/main-icon.png" alt="" height="75" width="75"/>
+      </router-link>
       <h1 id="head-line">Marvinpedia</h1>
-    </div>
-    <div class="header-content">
-      <h1>Test1</h1>
-      <h1>Test2</h1>
     </div>
   </div>
 </template>
@@ -27,22 +25,13 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  width: max-content;
+  width: 100%;
   background-color: #f5f5f5;
   border-bottom: 2px solid #e0e0e0;
 }
 
 #head-line {
   color: #333;
-}
-
-.header-content {
-  display: flex;
-  width: 100%;
-  background-color: #f5f5f5;
-  border-bottom: 2px solid #e0e0e0;
 }
 
 </style>
