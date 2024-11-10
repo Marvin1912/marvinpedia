@@ -4,23 +4,18 @@
 
 <script setup lang="ts">
 
-import {markRaw, onMounted, ref} from 'vue';
+import {ref} from 'vue';
 import {useRoute} from 'vue-router';
-import {markDownBasedComponents} from '@/functions/create_markdown_routes.ts'
+import TheDepthsOfTheHibernateCode from "@/assets/markdown/the-depths-of-the-hibernate-code.md";
+import TheThingWithThePersistenceContext from "@/assets/markdown/the-thing-with-the-persistence-context.md";
 
-const topicName = useRoute().params.wikiTopic;
 const fileName = useRoute().params.wikiEntryName;
-const currentComponent = ref();
 const metaAttributes = ref({});
 
-onMounted(async () => {
+const currentComponent = [
+  TheDepthsOfTheHibernateCode,
+  TheThingWithThePersistenceContext
+]
+    .find(component => fileName === component.__name);
 
-  let mdComponent = (await markDownBasedComponents(topicName))
-      .find(mdComponent => mdComponent.path.includes(`/${fileName}`));
-
-  if (mdComponent) {
-    currentComponent.value = markRaw((await mdComponent.component()).default);
-    metaAttributes.value = mdComponent.metaAttributes;
-  }
-});
 </script>
