@@ -4,7 +4,7 @@
     <div class="wikiEntries">
       <ul class="wiki-list">
         <li v-for="names in namesRefs" :key="names.id" class="wiki-list-item">
-          <router-link :to="`${topicName}/${names.name}`" class="wiki-link">{{ names.displayName }}</router-link>
+          <router-link :to="`${topicName}/${names.fileName}`" class="wiki-link">{{ names.name }}</router-link>
         </li>
       </ul>
     </div>
@@ -14,20 +14,11 @@
 <script setup lang="ts">
 
 import {useRoute} from "vue-router";
+import markdownMetaData from '@/assets/markdown/markdown.meta'
 
 const topicName = useRoute().params.wikiTopic;
 
-const namesRefs = [{
-  id: 2,
-  topic: "hibernate",
-  name: "the-depths-of-the-hibernate-code",
-  displayName: "The Depths Of The Hibernate Code"
-}, {
-  id: 1,
-  topic: "hibernate",
-  name: "the-thing-with-the-persistence-context",
-  displayName: "The Thing With The Persistence Context"
-}]
+const namesRefs = markdownMetaData
     .sort((a, b) => a.id - b.id)
     .filter(value => topicName === value.topic);
 

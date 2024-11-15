@@ -1,0 +1,4 @@
+/*
+    This is a marker file only. Its purpose is to identify the path of the *.md files, so that a Vite plugin is able
+    to load the files and provide the metadata of these files for further usage.
+*/

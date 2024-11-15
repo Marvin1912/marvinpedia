@@ -17,6 +17,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.4",
     "unplugin-vue-markdown": "^0.26.2",
-    "vite": "^5.4.10"
+    "vite": "^5.4.10",
+    "vite-plugin-inspect": "^0.8.7"
   }
 }

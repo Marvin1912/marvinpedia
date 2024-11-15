@@ -1,6 +1,8 @@
 ---
+id: 2
 name: The Depths Of The Hibernate Code
 topic: hibernate
+fileName: the-depths-of-the-hibernate-code
 ---
 
 # The Depths Of The Hibernate Code
