@@ -7,6 +7,11 @@
     width: 100%;
 }
 
+.post-content p {
+    margin-block-start: .5em;
+    margin-block-end: .5em;
+}
+
 .post-image-container {
      display: flex;
      justify-content: center;
