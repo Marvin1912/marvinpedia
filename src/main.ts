@@ -1,5 +1,5 @@
-import './assets/base.css'
-import './assets/markdown/markdown.css'
+import './assets/css/base.css'
+import './assets/css/markdown.css'
 
 import {createApp} from 'vue'
 import {createRouter, createWebHistory} from 'vue-router'

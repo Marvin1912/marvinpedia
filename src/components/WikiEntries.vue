@@ -14,11 +14,11 @@
 <script setup lang="ts">
 
 import {useRoute} from "vue-router";
-import markdownMetaData from '@/assets/markdown/markdown.meta'
+import {getMetaData} from '@/functions/load_modules'
 
 const topicName = useRoute().params.wikiTopic;
 
-const namesRefs = markdownMetaData
+const namesRefs = getMetaData()
     .sort((a, b) => a.id - b.id)
     .filter(value => topicName === value.topic);
 
