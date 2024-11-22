@@ -30,11 +30,11 @@ servlets, filters, listeners, and other configuration settings. Located in the W
 as the primary configuration source that instructs the servlet container how to deploy and manage the application. It includes
 specifications for initialization parameters, environment entries, security settings, and session configuration, guiding the
 behavior of the application at runtime. The definition of the schema is based on the Jakarta EE specification and can be found
-under the Jakarta EE XML Schemas (web-app*.xsd).[[1]](#1)
+under the Jakarta EE XML Schemas (`web-app*.xsd`).[[1]](#1)
 
 Since this is about Spring, a short peculiarity of web.xml in connection with Spring should be emphasized. In Spring, it is
 possible to apply filters to incoming web requests. These filters can be made known to the application within the web.xml. For
-example, a simple filter can be created in Spring with the _GenericFilterBean_, which can filter and process requests.
+example, a simple filter can be created in Spring with the `GenericFilterBean`, which can filter and process requests.
 
 The following must be entered in the web.xml.
 
@@ -61,8 +61,8 @@ public class RequestFilterClass extends GenericFilterBean {}
 ### Access the ApplicationContext
 
 It may well be that beans registered in the respective application context are to be used within the filter. As a filter does not
-usually have its own context, a utility must be used. In the case of a filter, the class _WebApplicationContextUtils_ can be used
-here (see Javadoc of the class _GenericFilterBean_). For example, an instance variable of a bean can be set as follows.
+usually have its own context, a utility must be used. In the case of a filter, the class `WebApplicationContextUtils` can be used
+here (see Javadoc of the class `GenericFilterBean`). For example, an instance variable of a bean can be set as follows.
 
 ```
 private MyBean myBean;
@@ -80,7 +80,7 @@ protected void initFilterBean() {
 However, there is a small sticking point here. In order for the WebApplicationContext to be available at this point, it must also
 be loaded accordingly when the application is started. And this is where the web.xml comes into play again. A listener must be
 entered
-within this, namely the _ContextLoaderListener_. This ensures that the WebApplicationContext is loaded and added to the
+within this, namely the `ContextLoaderListener`. This ensures that the WebApplicationContext is loaded and added to the
 ServletContext.
 
 ```
@@ -89,9 +89,9 @@ ServletContext.
 </listener>
 ```
 
-It is important to note here that the _ContextLoaderListener_ attempts to load the application context defined via the respective
-Spring XML. By default, the _/WEB-INF/applicationContext.xml_ file is searched for here. If this has been replaced by a different
-one or simply has a different name, this must also be entered in web.xml. This can be done via a _context-param_.
+It is important to note here that the `ContextLoaderListener` attempts to load the application context defined via the respective
+Spring XML. By default, the `/WEB-INF/applicationContext.xml` file is searched for here. If this has been replaced by a different
+one or simply has a different name, this must also be entered in web.xml. This can be done via a `context-param`.
 
 ```
 <context-param>
@@ -100,11 +100,11 @@ one or simply has a different name, this must also be entered in web.xml. This c
 </context-param>
 ```
 
-The _contextConfigLocation_ property must be used here, as this in turn is defined accordingly in the
-_org.springframework.web.context.ContextLoader_ class and transfers the specified location to the WebApplicationContext.
+The `contextConfigLocation` property must be used here, as this in turn is defined accordingly in the
+`org.springframework.web.context.ContextLoader` class and transfers the specified location to the WebApplicationContext.
 
 (The definition of the default location for the Spring configuration XML can be found in the class
-_org.springframework.web.context.support.XmlWebApplicationContext_ as _DEFAULT_CONFIG_LOCATION_)
+`org.springframework.web.context.support.XmlWebApplicationContext` as `DEFAULT_CONFIG_LOCATION`)
 
 ***
 <a id="1">[1]</a> https://jakarta.ee/xml/ns/jakartaee/ <br>
