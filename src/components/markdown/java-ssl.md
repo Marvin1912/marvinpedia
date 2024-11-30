@@ -5,7 +5,7 @@ topic: java_se
 fileName: java-ssl
 ---
 
-# Java SSL (Keystore and Truststore)
+# Java SSL - Keystore and Truststore
 
 ### General
 A keystore is basically a database that contains keystore information. This keystore information can be used for 
@@ -25,11 +25,6 @@ In addition, there is a system-wide keystore that contains certificates from CAs
 This is localized under ```<java-home>/lib/security/cacerts``` (also Linux-based systems) and has the name _cacerts_.[[2]](#2)
 
 ### Keytool
-Um Keystores zu verwalten, bietet Java ein hauseigenes Tool innerhalb des JDKs an. Mit Keytool
-lassen sich die Keystores problemlos verwalten. Im Folgenden werden einige Beispiele gezeigt,
-wie man mit Keytool umgeht. Im Zweifel wird eine Hilfe von Keytools angeboten (```keytool -h```).
-Als kurzes Beispiel soll hier der systemweite Keystore _cacerts_ herhalten.
-
 To manage keystores, Java offers an in-house tool within the JDK. The keystores can be easily managed with Keytool.
 Some examples of how to use Keytool are shown below. If in doubt, help is offered by Keytools (```keytool -h```).
 The system-wide keystore _cacerts_ is used here as a brief example.
