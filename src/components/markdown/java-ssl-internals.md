@@ -10,7 +10,7 @@ fileName: java-ssl-internals
 ### Trustmaterial
 
 Internally within the Java classes, the selection of the default trust store is based on a call to a page protected by
-SSL page. An example of this is the call via a Spring RestTemplate.
+SSL. An example of this is the call via a Spring RestTemplate.
 
 ```
 restTemplate.getForObject("https://google.com", String.class);
@@ -68,8 +68,7 @@ words, in the use case shown above, the server `https://google.com` is not trust
 thrown.
 
 ```
-Caused by: sun.security.validator.ValidatorException: PKIX path building failed: 
-        sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+Caused by: sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
 	at java.base/sun.security.validator.PKIXValidator.doBuild(PKIXValidator.java:388) ~[na:na]
 	at java.base/sun.security.validator.PKIXValidator.engineValidate(PKIXValidator.java:271) ~[na:na]
 	at java.base/sun.security.validator.Validator.validate(Validator.java:256) ~[na:na]
@@ -80,7 +79,3 @@ Caused by: sun.security.validator.ValidatorException: PKIX path building failed:
 	at java.base/sun.security.ssl.CertificateMessage$T13CertificateConsumer.checkServerCerts(CertificateMessage.java:1302) ~[na:na]
 	... 60 common frames omitted
 ```
-
-[//]: # (### Keymaterial)
-
-[//]: # (SSLContextImpl:974)
