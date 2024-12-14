@@ -1,5 +1,5 @@
 ---
-id: 4
+id: 6
 name: Java SSL Internals
 topic: java_se
 fileName: java-ssl-internals
