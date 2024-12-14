@@ -10,8 +10,7 @@ fileName: java-ssl
 ### Trustmaterial
 
 Internally within the Java classes, the selection of the default trust store is based on a call to a page protected by
-SSL
-protected page. An example of this is the call via a Spring RestTemplate.
+SSL protected page. An example of this is the call via a Spring RestTemplate.
 
 ```
 restTemplate.getForObject("https://google.com", String.class);
@@ -80,7 +79,3 @@ Caused by: sun.security.validator.ValidatorException: PKIX path building failed:
 	at java.base/sun.security.ssl.CertificateMessage$T13CertificateConsumer.checkServerCerts(CertificateMessage.java:1302) ~[na:na]
 	... 60 common frames omitted
 ```
-
-[//]: # (### Keymaterial)
-
-[//]: # (SSLContextImpl:974)
