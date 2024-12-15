@@ -46,6 +46,11 @@ const namesRefs = getMetaData()
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   height: fit-content;
+
+  @media only screen and (max-width: 560px) {
+    width: 75%;
+  }
+
 }
 
 .wiki-list {
@@ -56,6 +61,10 @@ const namesRefs = getMetaData()
 
 .wiki-list-item {
   margin: 10px 0;
+
+  @media only screen and (max-width: 560px) {
+    text-align: center;
+  }
 }
 
 .wiki-link {

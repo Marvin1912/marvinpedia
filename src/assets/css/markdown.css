@@ -7,6 +7,12 @@
     width: 100%;
 }
 
+.post-content h1 {
+    @media only screen and (max-width: 560px) {
+        font-size: x-large;
+    }
+}
+
 .post-content p {
     margin-block-start: .5em;
     margin-block-end: .5em;
@@ -17,7 +23,11 @@
      justify-content: center;
  }
 
-.post-img {
+.post-image {
     width: 50%;
     height: auto;
+
+    @media only screen and (max-width: 560px) {
+        width: 100%;
+    }
 }

@@ -50,6 +50,11 @@ function mouse_left() {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
   perspective: 1000px;
+
+  @media only screen and (max-width: 1100px) {
+    width: 250px;
+  }
+
 }
 
 .flipping-container {
@@ -96,6 +101,12 @@ function mouse_left() {
   max-height: 150px;
   object-fit: cover;
   transition: transform 0.2s ease;
+
+  @media only screen and (max-width: 560px) {
+    max-width: 125px;
+    max-height: 125px;
+  }
+
 }
 
 .item-cards:hover .item-image {
