@@ -18,6 +18,7 @@ import img_hibernate from '@/components/icons/Hibernate.png'
 import img_java_se from '@/components/icons/JavaSE.png'
 import img_kafka from '@/components/icons/Kafka.png'
 import img_spring from '@/components/icons/Spring.png'
+import img_angular from '@/components/icons/Angular.png'
 import {useRouter} from "vue-router";
 
 const router = useRouter()
@@ -38,8 +39,11 @@ const wikiListings = [
     description: 'Hibernate is a powerful Java framework for object-relational mapping (ORM) and data management. It simplifies database interactions by mapping Java objects to database tables, eliminating boilerplate SQL code. Hibernate supports features like lazy loading, caching, and transaction management, making it a popular choice for building efficient and scalable applications.'
   },
   {
-    id: 3, title: 'Kafka', image: img_kafka, toPage: '/wiki/kafka', description: '\n' +
-        'Kafka is a distributed event streaming platform designed for high-throughput data pipelines and real-time processing. It allows applications to publish, subscribe to, and process streams of records efficiently. Widely used for building scalable systems, Kafka supports use cases like log aggregation, real-time analytics, and event-driven architectures.'
+    id: 3,
+    title: 'Kafka',
+    image: img_kafka,
+    toPage: '/wiki/kafka',
+    description: 'Kafka is a distributed event streaming platform designed for high-throughput data pipelines and real-time processing. It allows applications to publish, subscribe to, and process streams of records efficiently. Widely used for building scalable systems, Kafka supports use cases like log aggregation, real-time analytics, and event-driven architectures.'
   },
   {
     id: 4,
@@ -47,6 +51,13 @@ const wikiListings = [
     image: img_spring,
     toPage: '/wiki/spring',
     description: 'Java Spring is a popular framework for building enterprise-level Java applications. It provides tools and features like dependency injection, aspect-oriented programming, and a modular architecture to simplify development. Spring supports building web applications, microservices, and APIs, making it versatile and widely adopted in modern software development.'
+  },
+  {
+    id: 5,
+    title: 'Angular',
+    image: img_angular,
+    toPage: '/wiki/angular',
+    description: 'Angular is a popular open-source web application framework developed and maintained by Google. Built using TypeScript, Angular is designed for building dynamic, single-page applications (SPAs) that are highly responsive and scalable. It provides a robust set of tools making it easier to manage and develop complex web applications.'
   },
 ];
 
