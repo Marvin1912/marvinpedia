@@ -19,6 +19,7 @@ import img_java_se from '@/components/icons/JavaSE.png'
 import img_kafka from '@/components/icons/Kafka.png'
 import img_spring from '@/components/icons/Spring.png'
 import img_angular from '@/components/icons/Angular.png'
+import img_kubernetes from '@/components/icons/Kubernetes.png'
 import {useRouter} from "vue-router";
 
 const router = useRouter()
@@ -58,6 +59,13 @@ const wikiListings = [
     image: img_angular,
     toPage: '/wiki/angular',
     description: 'Angular is a popular open-source web application framework developed and maintained by Google. Built using TypeScript, Angular is designed for building dynamic, single-page applications (SPAs) that are highly responsive and scalable. It provides a robust set of tools making it easier to manage and develop complex web applications.'
+  },
+  {
+    id: 6,
+    title: 'Kubernetes',
+    image: img_kubernetes,
+    toPage: '/wiki/kubernetes',
+    description: 'Kubernetes is an open-source container orchestration platform that automates the deployment, scaling, and management of containerized applications. It helps developers efficiently run applications across clusters of machines, ensuring high availability, scalability, and reliability. Kubernetes provides features like load balancing, service discovery, automated rollouts and rollbacks, self-healing, and resource management, making it a powerful tool for modern cloud-native application development.'
   },
 ];
 

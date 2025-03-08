@@ -1,0 +1,59 @@
+---
+id: 10
+name: k3s Setup
+topic: kubernetes
+fileName: k3s-setup
+---
+
+# K3s - Lightweight Kubernetes
+
+[K3s](https://k3s.io/) is a lightweight, fully compliant Kubernetes distribution designed for resource-constrained
+environments, edge computing, IoT devices, and development use cases. It is a simplified and optimized version of
+Kubernetes, developed by SUSE Rancher, to provide an easy-to-deploy and efficient Kubernetes experience.
+
+The following is merely intended to provide an overview of how k3s can be installed locally quickly and easily in order
+to test something with the environment.
+
+## Getting Started
+
+### Installation
+
+To install K3s, run the following command on your Linux machine:
+
+```
+curl -sfL https://get.k3s.io | sh -
+```
+
+This command downloads and installs K3s, setting up a fully functional Kubernetes cluster in minutes.
+
+### Kubectl
+
+k3s packs the configuration for kubectl under the path `/etc/rancher/k3s/k3s.yaml`. The file is assigned to the root
+user. So that kubectl can be executed without root rights, the file must be assigned to the own user as owner.
+
+```
+sudo chown $USER:$USER /etc/rancher/k3s/k3s.yaml 
+chmod 600 /etc/rancher/k3s/k3s.yaml
+```
+
+### Local Container Registry
+
+So that images can be loaded from the local (or another container registry), this must be stored in the configuration of
+k3s. The configuration is located under `/etc/rancher/k3s/registries.yaml` or must be created if it does not exist. The
+following is an example of a local registry.
+
+```
+mirrors:
+  "192.168.178.29:5000":
+    endpoint:
+      - "http://192.168.178.29:5000"
+```
+
+At this point it should also be noted that in order to successfully push an image to the local registry, this must be
+entered under `/etc/docker/daemon.json`. Provided, of course, that no TLS is to be used.
+
+```
+{
+    "insecure-registries" : ["192.168.178.29:5000"]
+}
+```

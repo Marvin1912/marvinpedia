@@ -16,7 +16,7 @@ printf "\n### Existing topics:\n%s\n\n" "$(grep -h "^topic:" src/components/mark
 read -rp "Topic: " topic
 
 read -rp "Filename: " fileName
-if [[ ! $fileName =~ ^[a-z\-]+$ ]]; then
+if [[ ! $fileName =~ ^[0-9a-z\-]+$ ]]; then
   echo "Filename is wrong (a-z) and - allowed only."
   exit 1
 fi
