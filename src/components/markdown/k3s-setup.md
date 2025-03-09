@@ -29,12 +29,20 @@ This command downloads and installs K3s, setting up a fully functional Kubernete
 ### Kubectl
 
 k3s packs the configuration for kubectl under the path `/etc/rancher/k3s/k3s.yaml`. The file is assigned to the root
-user. So that kubectl can be executed without root rights, the file must be assigned to the own user as owner.
+user. So that kubectl can be executed without root rights, some changes need to be done.
 
 ```
-sudo chown $USER:$USER /etc/rancher/k3s/k3s.yaml 
-chmod 600 /etc/rancher/k3s/k3s.yaml
+mkdir -p ~/.kube/config
+
+sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+
+sudo chown $USER:$USER ~/.kube/config/k3s.yaml
+
+export KUBECONFIG=~/.kube/config/k3s.yaml
 ```
+
+Basically, the config is simply copied to the local kube directory and made accessible to the user. It should be noted
+that `KUBECONFIG ` is set within ~/.bashrc, for example, so that the config also survives a logout.
 
 ### Local Container Registry
 
