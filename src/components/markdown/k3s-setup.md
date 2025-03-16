@@ -74,7 +74,7 @@ the [Traefik](https://doc.traefik.io/traefik/) application proxy supplied. Traef
 - web on port 80
 - websecure on port 443
 
-The CustomResource `IngressRoute` can now be used to address a dedicated service. The `namespace` must be the one in
+The CustomResource `IngressRoute` can be used to address a dedicated service. The `namespace` must be the one in
 which the services run. Traefik is able to address the service across namespaces (Traefik runs in namespace `kube-system`).
 
 ```
@@ -101,4 +101,5 @@ spec:
         port: 80
 ```
 
-It is important to know that the host name must be sent accordingly in the host file or as a header.
+It is important to know that the hostname must be set accordingly in the host file or as a header. A service can
+then be accessed (f.e.) via `http://prometheus.kube.test.com`.
