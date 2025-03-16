@@ -65,3 +65,40 @@ entered under `/etc/docker/daemon.json`. Provided, of course, that no TLS is to 
     "insecure-registries" : ["192.168.178.29:5000"]
 }
 ```
+
+### Ingress (Application Access)
+
+If applications are deployed in the cluster and have an HTTP interface (or similar), they can simply be addressed via
+the [Traefik](https://doc.traefik.io/traefik/) application proxy supplied. Traefik offers two default endpoints:
+
+- web on port 80
+- websecure on port 443
+
+The CustomResource `IngressRoute` can now be used to address a dedicated service. The `namespace` must be the one in
+which the services run. Traefik is able to address the service across namespaces (Traefik runs in namespace `kube-system`).
+
+```
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: kube-test
+  namespace: default
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: Host(`prometheus.kube.test.com`)
+    kind: Rule
+    services:
+      - kind: Service
+        name: kube-prometheus-stack-prometheus
+        port: 9090
+  - match: Host(`grafana.kube.test.com`)
+    kind: Rule
+    services:
+      - kind: Service
+        name: kube-prometheus-stack-grafana
+        port: 80
+```
+
+It is important to know that the host name must be sent accordingly in the host file or as a header.
