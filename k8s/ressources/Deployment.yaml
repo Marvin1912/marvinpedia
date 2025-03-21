@@ -18,6 +18,7 @@ spec:
       containers:
         - name: java-app-container
           image: 192.168.178.29:5000/k8s:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:

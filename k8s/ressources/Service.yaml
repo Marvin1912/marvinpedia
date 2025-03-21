@@ -7,7 +7,8 @@ spec:
   selector:
     app: k8s-java-app
   ports:
-    - protocol: TCP
-      port: 9090
+    - name: http-web
+      protocol: TCP
+      port: 7080
       targetPort: 8080
   type: ClusterIP
