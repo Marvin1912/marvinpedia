@@ -2,6 +2,8 @@
 
 set -e
 
+./gradlew clean build
+
 IMAGE_NAME=k8s
 IMAGE_TAG=latest
 REGISTRY=192.168.178.29:5000
