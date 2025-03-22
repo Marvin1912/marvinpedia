@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: k8s-java-app-service-monitor
+  namespace: default
+  labels:
+    release: kube-prometheus-stack
+spec:
+  endpoints:
+  - path: /actuator/prometheus
+    port: http-web
+    scheme: http
+  namespaceSelector:
+    matchNames:
+    - default
+  selector:
+    matchLabels:
+      app: k8s-java-app

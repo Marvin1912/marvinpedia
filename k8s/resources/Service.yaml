@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: k8s-java-app-service
   namespace: default
+  labels:
+    app: k8s-java-app
 spec:
   selector:
     app: k8s-java-app
