@@ -1,6 +1,6 @@
 ---
 id: 9
-name: angular-router-outlet
+name: Angulars router-outlet
 topic: angular
 fileName: angular-router-outlet
 ---
