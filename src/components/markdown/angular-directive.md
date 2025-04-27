@@ -47,8 +47,6 @@ export class HighlightDirective {
 <p appHighlight>Hover over this text to see the highlight effect!</p>
 ```
 
-Perfect! Here's a short and clean section you can add right after the `@Directive` explanation:
-
 ### When to Use a Directive vs. a Component
 
 - **Use a Directive** when you want to **add behavior** to an existing DOM element **without
