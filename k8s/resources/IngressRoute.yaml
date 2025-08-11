@@ -17,8 +17,8 @@ spec:
       kind: Rule
       services:
         - kind: Service
-          name: kube-prometheus-stack-grafana
-          port: 80
+          name: grafana-service 
+          port: 3000
     - match: Host(`app.kube.test.com`)
       kind: Rule
       services:

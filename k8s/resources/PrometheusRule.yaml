@@ -4,13 +4,13 @@ metadata:
   name: logging-rule
   namespace: default
   labels:
-    prometheus: kube-prometheus-stack
-    role: alert-rules
+    app: k8s-java-app
+    release: kube-prometheus-stack
 spec:
   groups:
     - name: logging
       rules:
-        - alert: HighCPUUsage
+        - alert: InfoLogging
           expr: sum(rate(logback_events_total{job="k8s-java-app-service", level="info"}[5m])) > 5
           labels:
             severity: warning
