@@ -1,3 +1,10 @@
+---
+id: 15
+name: Angular Dialog Implementation
+topic: angular
+fileName: angular-dialog-implementation
+---
+
 # Angular Dialog Implementation
 
 ## Overview
