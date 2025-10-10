@@ -152,7 +152,7 @@ The implementation uses carefully timed delays to create a smooth user experienc
 - **Clear existing timeouts** - Prevents conflicting timeout operations
 
 ### 2. Intelligent Positioning
-The preview dialog appears near the mouse cursor while staying within screen boundaries:
+The preview dialog appears near the mouse cursor while staying within screen boundaries. This positioning algorithm ensures the preview is always visible and accessible:
 
 ```typescript
 private positionPreview(event: MouseEvent): void {
@@ -166,6 +166,26 @@ private positionPreview(event: MouseEvent): void {
   }
 }
 ```
+
+**How the positioning works:**
+
+1. **Container Detection**: The algorithm first finds the parent container element and gets its dimensions using `getBoundingClientRect()`
+
+2. **Relative Positioning**: It calculates the mouse position relative to the container by subtracting the container's left and top positions from the mouse coordinates
+
+3. **Horizontal Positioning**:
+   - Adds 15px offset from the cursor for better visibility
+   - Uses `Math.min()` to prevent the preview from extending beyond the container's right edge
+   - The 270px value represents the maximum preview width
+
+4. **Vertical Positioning**:
+   - Places the preview at the exact vertical position of the mouse cursor
+   - Constrains the position to prevent overflow beyond the window's bottom edge
+   - The 300px value accounts for the preview height plus additional margin
+
+5. **Boundary Protection**: The `Math.min()` functions act as safeguards, automatically adjusting the position when the preview would otherwise overflow the visible area
+
+This approach creates a smooth user experience where the preview follows the mouse naturally while remaining fully visible regardless of cursor position.
 
 ### 3. Component Communication
 The pattern uses Angular's `@Input()` binding to pass data between components:
@@ -182,36 +202,6 @@ The implementation handles various user interactions:
 - **Hover over preview** - Keeps preview visible
 - **Click actions** - Separate from hover actions
 
-## Common Implementation Patterns
-
-### Enhancing with Animations
-Add smooth transitions using Angular animations:
-
-```typescript
-import { trigger, state, style, transition, animate } from '@angular/animations';
-
-@Component({
-  animations: [
-    trigger('fadeInOut', [
-      state('void', style({ opacity: 0 })),
-      state('*', style({ opacity: 1 })),
-      transition('void <=> *', animate('200ms ease-in-out'))
-    ])
-  ]
-})
-```
-
-### Mobile Considerations
-For mobile devices, consider touch events:
-
-```typescript
-// Add touch support for mobile devices
-@HostListener('touchstart', ['$event'])
-onTouchStart(event: TouchEvent): void {
-  // Handle touch events similar to mouse events
-}
-```
-
 ## Advantages of This Approach
 
 - **User Experience**: Provides instant feedback without navigation
@@ -219,16 +209,6 @@ onTouchStart(event: TouchEvent): void {
 - **Maintainability**: Clean component architecture with clear responsibilities
 - **Type Safety**: Full TypeScript support with proper type definitions
 - **Flexibility**: Easy to customize for different content types
-
-## Practical Applications
-
-This pattern works well for:
-
-- **Product catalogs** - Quick preview of product details
-- **Data tables** - Preview of full records without opening new pages
-- **Image galleries** - Larger preview on hover
-- **Navigation menus** - Sub-menu previews
-- **Dashboard widgets** - Expanded preview of metrics
 
 ## Implementation Tips
 
