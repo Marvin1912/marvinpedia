@@ -7,7 +7,8 @@
 import {useRoute} from 'vue-router';
 import {getComponent} from '@/functions/load_modules'
 
-const fileName = useRoute().params.wikiEntryName;
+const route = useRoute();
+const fileName = `${route.params.wikiTopic}/${route.params.wikiEntryName}`;
 const currentComponent = getComponent(fileName);
 
 </script>
