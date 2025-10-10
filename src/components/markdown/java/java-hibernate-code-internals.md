@@ -2,7 +2,7 @@
 id: 2
 name: The Depths Of The Hibernate Code
 topic: hibernate
-fileName: the-depths-of-the-hibernate-code
+fileName: java/java-hibernate-code-internals
 ---
 
 # The Depths Of The Hibernate Code

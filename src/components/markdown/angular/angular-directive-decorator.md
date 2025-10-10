@@ -2,7 +2,7 @@
 id: 14
 name: Angulars @Directive
 topic: angular
-fileName: angular-directive
+fileName: angular/angular-directive-decorator
 ---
 
 # Angulars @Directive

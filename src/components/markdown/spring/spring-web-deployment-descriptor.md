@@ -2,7 +2,7 @@
 id: 4
 name: Spring Web and the Deploymentdescriptor
 topic: spring
-fileName: spring-web
+fileName: spring/spring-web-deployment-descriptor
 ---
 
 # Spring Web and the Deploymentdescriptor

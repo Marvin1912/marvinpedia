@@ -1,4 +1,4 @@
-const modules = import.meta.glob('@/components/markdown/*.md', {eager: true})
+const modules = import.meta.glob('@/components/markdown/**/*.md', {eager: true})
 
 export function getMetaData(): {} {
     return Object.values(modules)

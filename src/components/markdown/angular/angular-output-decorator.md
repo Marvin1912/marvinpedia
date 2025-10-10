@@ -2,7 +2,7 @@
 id: 13
 name: Angulars @Output
 topic: angular
-fileName: angular-output
+fileName: angular/angular-output-decorator
 ---
 
 # Angulars @Output

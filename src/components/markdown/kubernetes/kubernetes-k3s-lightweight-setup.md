@@ -2,7 +2,7 @@
 id: 10
 name: k3s Setup
 topic: kubernetes
-fileName: k3s-setup
+fileName: kubernetes/kubernetes-k3s-lightweight-setup
 ---
 
 # K3s - Lightweight Kubernetes

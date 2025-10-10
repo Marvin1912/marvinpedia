@@ -2,7 +2,7 @@
 id: 8
 name: Angulars NgModel
 topic: angular
-fileName: angular-ng-model
+fileName: angular/angular-ng-model-directive
 ---
 
 # Angulars NgModel

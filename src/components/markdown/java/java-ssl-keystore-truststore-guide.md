@@ -2,7 +2,7 @@
 id: 3
 name: Java SSL (Keystore and Truststore)
 topic: java_se
-fileName: java-ssl
+fileName: java/java-ssl-keystore-truststore-guide
 ---
 
 # Java SSL - Keystore and Truststore
