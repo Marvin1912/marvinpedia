@@ -4,7 +4,7 @@
     <div class="wikiEntries">
       <ul class="wiki-list">
         <li v-for="names in namesRefs" :key="names.id" class="wiki-list-item">
-          <router-link :to="`${topicName}/${names.fileName}`" class="wiki-link">{{ names.name }}</router-link>
+          <router-link :to="`/wiki/${names.fileName}`" class="wiki-link">{{ names.name }}</router-link>
         </li>
       </ul>
     </div>
