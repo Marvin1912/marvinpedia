@@ -35,22 +35,15 @@ export default defineConfig({
             wrapperClasses: 'post-content',
             markdownItOptions: {
                 highlight: function (str, lang) {
-                    let result;
-
                     if (lang && hljs.getLanguage(lang)) {
                         try {
-                            result = hljs.highlight(str, { language: lang, ignoreIllegals: true });
-                        } catch (__) {
-                            result = hljs.highlightAuto(str);
-                        }
-                    } else {
-                        result = hljs.highlightAuto(str);
+                            return '<pre class="hljs"><code>' +
+                                   hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
+                                   '</code></pre>';
+                        } catch (__) {}
                     }
-
-                    const detectedLang = result.language || lang || 'text';
-
-                    return `<pre class="hljs" data-language="${detectedLang}"><code class="hljs language-${detectedLang}">` +
-                           result.value +
+                    return '<pre class="hljs"><code>' +
+                           hljs.highlightAuto(str).value +
                            '</code></pre>';
                 }
             }

@@ -60,23 +60,11 @@
     font-size: 0.85em;
 }
 
-/* highlight.js specific styling - GitHub Dark theme customization */
-.post-content .hljs {
+/* Temporarily disable custom hljs styling to debug */
+/* .post-content .hljs {
     background: #0d1117 !important;
     color: #c9d1d9;
-}
-
-/* Custom styling for better visibility */
-.post-content pre.hljs {
-    margin: 0;
-    padding: 0;
-}
-
-.post-content pre.hljs code {
-    padding: 1rem;
-    display: block;
-    background: transparent !important;
-}
+} */
 
 /* Language tag styling */
 .post-content pre::before {
