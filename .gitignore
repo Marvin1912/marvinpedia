@@ -32,3 +32,4 @@ coverage
 */.gradle/**
 */build/**
 *.iml
+package-lock.json
