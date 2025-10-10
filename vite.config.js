@@ -13,7 +13,6 @@ import bash from 'highlight.js/lib/languages/bash'
 import xml from 'highlight.js/lib/languages/xml'
 import json from 'highlight.js/lib/languages/json'
 import css from 'highlight.js/lib/languages/css'
-import 'highlight.js/styles/github-dark.css'
 
 // Register languages
 hljs.registerLanguage('javascript', javascript)
