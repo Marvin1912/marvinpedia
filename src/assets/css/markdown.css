@@ -60,17 +60,10 @@
     font-size: 0.85em;
 }
 
-/* Basic code block styling for debugging */
+/* Basic code block styling - simplified to italic only */
 .post-content pre {
-    background-color: #0d1117 !important;
-    border-radius: 8px;
-    padding: 1rem;
     margin: 1rem 0;
     overflow-y: visible;
-    border: 1px solid #30363d;
-    position: relative;
-    min-height: auto;
-    max-height: none;
 }
 
 .post-content pre code {
@@ -82,58 +75,41 @@
     display: block;
     white-space: pre;
     word-wrap: normal;
-}
-
-/* highlight.js GitHub Dark theme styling */
-.post-content .hljs {
-    background: #0d1117 !important;
-    color: #c9d1d9;
-    overflow-x: visible !important;
-}
-
-.post-content .hljs-comment,
-.post-content .hljs-quote {
-    color: #8b949e;
     font-style: italic;
 }
 
+/* highlight.js styling - simplified to italic only */
+.post-content .hljs {
+    background: transparent !important;
+    color: inherit;
+    overflow-x: visible !important;
+    font-style: italic;
+}
+
+/* Remove all syntax highlighting colors, keep only italic */
+.post-content .hljs-comment,
+.post-content .hljs-quote,
 .post-content .hljs-keyword,
 .post-content .hljs-selector-tag,
-.post-content .hljs-subst {
-    color: #ff7b72;
-    font-weight: 600;
-}
-
+.post-content .hljs-subst,
 .post-content .hljs-string,
-.post-content .hljs-doctag {
-    color: #a5d6ff;
-}
-
+.post-content .hljs-doctag,
 .post-content .hljs-number,
 .post-content .hljs-literal,
 .post-content .hljs-variable,
 .post-content .hljs-template-variable,
-.post-content .hljs-tag .hljs-attr {
-    color: #79c0ff;
-}
-
+.post-content .hljs-tag .hljs-attr,
 .post-content .hljs-title,
 .post-content .hljs-section,
-.post-content .hljs-selector-id {
-    color: #d2a8ff;
-    font-weight: 600;
-}
-
+.post-content .hljs-selector-id,
 .post-content .hljs-type,
-.post-content .hljs-class .hljs-title {
-    color: #ffa657;
-    font-weight: 600;
-}
-
+.post-content .hljs-class .hljs-title,
 .post-content .hljs-tag,
 .post-content .hljs-name,
 .post-content .hljs-attribute {
-    color: #7ee787;
+    color: inherit;
+    font-style: italic;
+    font-weight: normal;
 }
 
 /* Language tag styling */
@@ -277,9 +253,7 @@
 /* Responsive code blocks */
 @media only screen and (max-width: 560px) {
     .post-content pre {
-        padding: 0.75rem;
         font-size: 0.8rem;
-        border-radius: 6px;
         max-height: none;
         overflow-y: visible;
     }
@@ -287,6 +261,7 @@
     .post-content pre code {
         font-size: 0.8rem;
         padding: 0;
+        font-style: italic;
     }
 
     .post-content :not(pre) > code {
