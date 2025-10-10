@@ -88,6 +88,7 @@
 .post-content .hljs {
     background: #0d1117 !important;
     color: #c9d1d9;
+    overflow-x: visible !important;
 }
 
 .post-content .hljs-comment,
