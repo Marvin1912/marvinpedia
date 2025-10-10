@@ -38,7 +38,7 @@ example, a simple filter can be created in Spring with the `GenericFilterBean`, 
 
 The following must be entered in the web.xml.
 
-```
+```xml
 <filter>
   <filter-name>requestFilterName</filter-name>
   <filter-class>org.example.RequestFilterClass</filter-class>
@@ -53,7 +53,7 @@ It is important that a filter mapping is defined so that a distinction can be ma
 
 In the code, the definition of the class would look like this.
 
-```
+```java
 package org.example;
 public class RequestFilterClass extends GenericFilterBean {}
 ```
@@ -64,7 +64,7 @@ It may well be that beans registered in the respective application context are t
 usually have its own context, a utility must be used. In the case of a filter, the class `WebApplicationContextUtils` can be used
 here (see Javadoc of the class `GenericFilterBean`). For example, an instance variable of a bean can be set as follows.
 
-```
+```java
 private MyBean myBean;
 
 @Override
@@ -83,7 +83,7 @@ entered
 within this, namely the `ContextLoaderListener`. This ensures that the WebApplicationContext is loaded and added to the
 ServletContext.
 
-```
+```xml
 <listener>
   <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 </listener>
@@ -93,7 +93,7 @@ It is important to note here that the `ContextLoaderListener` attempts to load t
 Spring XML. By default, the `/WEB-INF/applicationContext.xml` file is searched for here. If this has been replaced by a different
 one or simply has a different name, this must also be entered in web.xml. This can be done via a `context-param`.
 
-```
+```xml
 <context-param>
   <param-name>contextConfigLocation</param-name>
   <param-value>/WEB-INF/spring-servlet.xml</param-value>

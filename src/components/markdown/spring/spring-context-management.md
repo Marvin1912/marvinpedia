@@ -30,7 +30,7 @@ managing web components.
 The global context is defined by the `applicationContext.xml` and has the following format. The corresponding beans and other
 components of the application can then be defined here.
 
-```
+```xml
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
@@ -41,7 +41,7 @@ components of the application can then be defined here.
 In the classic application field of a web application implemented with Spring, the `applicationContext.xml` is defined within the
 deployment descriptor (web.xml). This looks as follows.
 
-```
+```xml
 <listener>
   <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 </listener>
@@ -60,7 +60,7 @@ The servlet context is defined by the file `spring-servlet.xml` and has the same
 The `spring-servlet.xml` is also defined by the deployment descriptor. Here, however, it is not defined by a listener, but by
 the `DispatcherServlet`. This then looks as follows.
 
-```
+```xml
 <servlet>
   <servlet-name>spring</servlet-name>
   <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>

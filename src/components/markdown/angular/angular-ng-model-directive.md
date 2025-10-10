@@ -23,7 +23,7 @@ and vice versa.
 
 ### Example
 
-```
+```html
 // app.component.html
 <input type="text" [(ngModel)]="name" placeholder="Enter your name">
 <p>Your name is: {{ name }}</p>

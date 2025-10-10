@@ -12,7 +12,7 @@ controllers to introduce new types of resources beyond the built-in ones like Po
 
 To list all CRDs currently installed in your cluster use:
 
-```
+```bash
 > kubectl get crds
 
 NAME                                        CREATED AT
@@ -33,11 +33,11 @@ This will show you all custom resource types registered in the cluster, along wi
 
 Once the kind is known, it can be listed with:
 
-```
+```bash
 kubectl get <resource-kind> -n <namespace>
 ```
 
-```
+```bash
 > kubectl get servicemonitors.monitoring.coreos.com -n default
 
 NAME                                             AGE

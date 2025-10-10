@@ -24,7 +24,7 @@ enabling dynamic and customizable behavior in the child component based on the p
 
 ### Example
 
-```
+```html
 // app.component.html
 <app-child [childProperty]="parentData"></app-child>
 

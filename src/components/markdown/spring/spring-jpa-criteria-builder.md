@@ -49,7 +49,7 @@ the `where` clause.
 
 ### A Simple One
 
-```
+```java
 // Obtain the CriteriaBuilder instance from the EntityManager to construct the query
 CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
 
@@ -72,7 +72,7 @@ List<Order> resultList = em.createQuery(orderQuery).getResultList();
 
 ### A Grouping Query
 
-```
+```java
 // Define a record to hold the result of the query
 record OrderSummaryDTO(Order order, Long count) { }
 
