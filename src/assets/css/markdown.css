@@ -60,11 +60,76 @@
     font-size: 0.85em;
 }
 
-/* Temporarily disable custom hljs styling to debug */
-/* .post-content .hljs {
+/* Basic code block styling for debugging */
+.post-content pre {
+    background-color: #0d1117 !important;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+    border: 1px solid #30363d;
+    position: relative;
+}
+
+.post-content pre code {
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Source Code Pro', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    background: transparent !important;
+    padding: 1rem;
+    display: block;
+}
+
+/* highlight.js GitHub Dark theme styling */
+.post-content .hljs {
     background: #0d1117 !important;
     color: #c9d1d9;
-} */
+}
+
+.post-content .hljs-comment,
+.post-content .hljs-quote {
+    color: #8b949e;
+    font-style: italic;
+}
+
+.post-content .hljs-keyword,
+.post-content .hljs-selector-tag,
+.post-content .hljs-subst {
+    color: #ff7b72;
+    font-weight: 600;
+}
+
+.post-content .hljs-string,
+.post-content .hljs-doctag {
+    color: #a5d6ff;
+}
+
+.post-content .hljs-number,
+.post-content .hljs-literal,
+.post-content .hljs-variable,
+.post-content .hljs-template-variable,
+.post-content .hljs-tag .hljs-attr {
+    color: #79c0ff;
+}
+
+.post-content .hljs-title,
+.post-content .hljs-section,
+.post-content .hljs-selector-id {
+    color: #d2a8ff;
+    font-weight: 600;
+}
+
+.post-content .hljs-type,
+.post-content .hljs-class .hljs-title {
+    color: #ffa657;
+    font-weight: 600;
+}
+
+.post-content .hljs-tag,
+.post-content .hljs-name,
+.post-content .hljs-attribute {
+    color: #7ee787;
+}
 
 /* Language tag styling */
 .post-content pre::before {
