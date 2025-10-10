@@ -2,7 +2,7 @@
 id: 11
 name: k8s Custom Ressources
 topic: kubernetes
-fileName: k8s-custom-ressources
+fileName: kubernetes/kubernetes-custom-resource-definitions
 ---
 
 # Custom Resource Definitions (CRDs)

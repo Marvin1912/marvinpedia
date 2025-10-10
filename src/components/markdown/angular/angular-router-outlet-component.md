@@ -2,7 +2,7 @@
 id: 9
 name: Angulars router-outlet
 topic: angular
-fileName: angular-router-outlet
+fileName: angular/angular-router-outlet-component
 ---
 
 # Angulars `router-outlet`

@@ -2,7 +2,7 @@
 id: 6
 name: Java SSL Internals
 topic: java_se
-fileName: java-ssl-internals
+fileName: java/java-ssl-keystore-truststore-guide-internals
 ---
 
 # Java SSL Internals

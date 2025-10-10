@@ -2,7 +2,7 @@
 id: 7
 name: Angulars @Input
 topic: angular
-fileName: angular-input
+fileName: angular/angular-input-binding
 ---
 
 # Angulars @Input

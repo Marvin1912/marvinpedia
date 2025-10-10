@@ -2,7 +2,7 @@
 id: 9
 name: Criteria Builder
 topic: hibernate
-fileName: criteria-builder
+fileName: spring/spring-jpa-criteria-builder
 ---
 
 # Criteria Builder

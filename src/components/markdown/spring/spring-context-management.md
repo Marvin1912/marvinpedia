@@ -2,7 +2,7 @@
 id: 5
 name: Spring and it's Contexts
 topic: spring
-fileName: spring-contexts
+fileName: spring/spring-context-management
 ---
 
 # Spring and it's Contexts

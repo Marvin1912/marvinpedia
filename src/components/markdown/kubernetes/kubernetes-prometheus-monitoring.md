@@ -2,7 +2,7 @@
 id: 12
 name: Setup kube-prometheus
 topic: kubernetes
-fileName: kube-prometheus
+fileName: kubernetes/kubernetes-prometheus-monitoring
 ---
 
 # Introduction to kube-prometheus

@@ -2,7 +2,7 @@
 id: 1
 name: The Thing With The Persistence Context
 topic: hibernate
-fileName: the-thing-with-the-persistence-context
+fileName: java/java-jpa-persistence-context
 ---
 
 # The Thing With The Persistence Context
