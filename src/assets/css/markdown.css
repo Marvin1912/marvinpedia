@@ -31,3 +31,201 @@
         width: 100%;
     }
 }
+
+/* Code block styling - Enhanced for highlight.js */
+.post-content pre {
+    background-color: #0d1117 !important;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #30363d;
+    position: relative;
+}
+
+.post-content code {
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Source Code Pro', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Inline code styling */
+.post-content :not(pre) > code {
+    background-color: rgba(110, 118, 129, 0.1);
+    border: 1px solid rgba(110, 118, 129, 0.2);
+    border-radius: 4px;
+    padding: 0.2rem 0.4rem;
+    color: #58a6ff;
+    font-size: 0.85em;
+}
+
+/* highlight.js specific styling - GitHub Dark theme customization */
+.post-content .hljs {
+    background: #0d1117 !important;
+    color: #c9d1d9;
+}
+
+/* Custom styling for better visibility */
+.post-content pre.hljs {
+    margin: 0;
+    padding: 0;
+}
+
+.post-content pre.hljs code {
+    padding: 1rem;
+    display: block;
+    background: transparent !important;
+}
+
+/* Language tag styling */
+.post-content pre::before {
+    content: attr(data-language);
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #21262d;
+    color: #8b949e;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 0 8px 0 4px;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+/* Override highlight.js colors for better contrast */
+.post-content .hljs-comment,
+.post-content .hljs-quote {
+    color: #8b949e;
+    font-style: italic;
+}
+
+.post-content .hljs-keyword,
+.post-content .hljs-selector-tag,
+.post-content .hljs-subst {
+    color: #ff7b72;
+    font-weight: 600;
+}
+
+.post-content .hljs-number,
+.post-content .hljs-literal,
+.post-content .hljs-variable,
+.post-content .hljs-template-variable,
+.post-content .hljs-tag .hljs-attr {
+    color: #79c0ff;
+}
+
+.post-content .hljs-string,
+.post-content .hljs-doctag {
+    color: #a5d6ff;
+}
+
+.post-content .hljs-title,
+.post-content .hljs-section,
+.post-content .hljs-selector-id {
+    color: #d2a8ff;
+    font-weight: 600;
+}
+
+.post-content .hljs-type,
+.post-content .hljs-class .hljs-title {
+    color: #ffa657;
+    font-weight: 600;
+}
+
+.post-content .hljs-tag,
+.post-content .hljs-name,
+.post-content .hljs-attribute {
+    color: #7ee787;
+    font-weight: normal;
+}
+
+.post-content .hljs-regexp,
+.post-content .hljs-link {
+    color: #96d0ff;
+}
+
+.post-content .hljs-symbol,
+.post-content .hljs-bullet {
+    color: #ffa198;
+}
+
+.post-content .hljs-built_in,
+.post-content .hljs-builtin-name {
+    color: #ffa657;
+}
+
+.post-content .hljs-meta {
+    color: #8b949e;
+}
+
+.post-content .hljs-deletion {
+    background: #851e1e;
+    color: #ff7b72;
+}
+
+.post-content .hljs-addition {
+    background: #1a472a;
+    color: #3fb950;
+}
+
+.post-content .hljs-emphasis {
+    font-style: italic;
+}
+
+.post-content .hljs-strong {
+    font-weight: bold;
+}
+
+/* Line numbers styling */
+.post-content pre.line-numbers {
+    position: relative;
+    padding-left: 3.8em;
+    counter-reset: linenumber;
+}
+
+.post-content pre.line-numbers > code {
+    position: relative;
+    white-space: inherit;
+}
+
+.post-content pre.line-numbers .line-numbers-rows {
+    position: absolute;
+    pointer-events: none;
+    top: 0;
+    font-size: 100%;
+    left: -3.8em;
+    width: 3em;
+    letter-spacing: -1px;
+    border-right: 1px solid #999;
+    user-select: none;
+}
+
+.post-content pre.line-numbers .line-numbers-rows > span {
+    pointer-events: none;
+    display: block;
+    counter-increment: linenumber;
+}
+
+.post-content pre.line-numbers .line-numbers-rows > span:before {
+    content: counter(linenumber);
+    color: #999;
+    display: block;
+    padding-right: 0.8em;
+    text-align: right;
+}
+
+/* Responsive code blocks */
+@media only screen and (max-width: 560px) {
+    .post-content pre {
+        padding: 0.75rem;
+        font-size: 0.8rem;
+        border-radius: 6px;
+    }
+
+    .post-content :not(pre) > code {
+        font-size: 0.8rem;
+        padding: 0.15rem 0.3rem;
+    }
+}
