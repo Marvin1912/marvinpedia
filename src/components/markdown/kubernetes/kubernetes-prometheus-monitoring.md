@@ -20,7 +20,7 @@ This project provides:
 
 To get started with helm:
 
-```
+```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --namespace default --create-namespace

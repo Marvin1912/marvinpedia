@@ -12,7 +12,7 @@ fileName: java/java-ssl-keystore-truststore-guide-internals
 Internally within the Java classes, the selection of the default trust store is based on a call to a page protected by
 SSL. An example of this is the call via a Spring RestTemplate.
 
-```
+```java
 restTemplate.getForObject("https://google.com", String.class);
 ```
 
@@ -25,7 +25,7 @@ is not available in the standard, `cacerts` is used as the default truststore.
 
 However, you can also create a truststore yourself and use it for SSL-secured requests. All you need is a certificate.
 
-```
+```bash
 keytool -import -file trusted.cert -alias trustedCert -keystore myTrustStore
 ```
 
@@ -34,7 +34,7 @@ within the `loadTrustMaterial` method must return false, as otherwise the TrustM
 blindly. This can be seen in the implemented method `checkServerTrusted` of `javax.net.ssl.X509TrustManager`. For this
 example, the implementation `TrustManagerDelegate` from `org.apache.hc.core5.ssl` is used.
 
-```
+```java
 final RestTemplate restTemplate = new RestTemplate();
 
 try {
@@ -67,7 +67,7 @@ It should also be noted that the self-created truststore completely replaces the
 words, in the use case shown above, the server `https://google.com` is not trusted and the following exception is
 thrown.
 
-```
+```java
 Caused by: sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
 	at java.base/sun.security.validator.PKIXValidator.doBuild(PKIXValidator.java:388) ~[na:na]
 	at java.base/sun.security.validator.PKIXValidator.engineValidate(PKIXValidator.java:271) ~[na:na]

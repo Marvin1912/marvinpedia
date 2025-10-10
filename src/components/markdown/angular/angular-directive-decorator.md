@@ -20,7 +20,7 @@ custom behavior to elements or manipulate the DOM in a reusable and declarative 
 
 ### Example
 
-```
+```typescript
 // highlight.directive.ts
 import { Directive, ElementRef, HostListener } from '@angular/core';
 

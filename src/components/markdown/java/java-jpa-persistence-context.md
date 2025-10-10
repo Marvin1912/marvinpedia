@@ -50,7 +50,7 @@ The data was created by the initial retrieval of a set of entities that were inc
 this very process and thus became relevant for the dirty checks. The corresponding code is briefly presented in the
 following form.
 
-```
+```java
 @Transactional(Transactional.TxType.REQUIRED)
 public long fetchDataEntity() {
     return fetchDataEntity(childEntityRepository::findAll);

@@ -23,7 +23,7 @@ listen to and respond to, allowing dynamic and interactive communication between
 
 ### Example
 
-```
+```html
 // app.component.html
 <app-child (childEvent)="handleChildEvent($event)"></app-child>
 

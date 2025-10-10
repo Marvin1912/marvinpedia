@@ -12,7 +12,7 @@ post, something like (`childrenSupplier.get();`) is called? Well, first of all, 
 query is executed to the database. The interesting thing, however, is what happens afterward. All instances of the
 entities are stored in the Persistence Context. This can be seen within the code as follows.
 
-```
+```java
 SessionImpl session = entityManager.unwrap(SessionImpl.class);
 LOGGER.info("Before query: " + session.getPersistenceContext().getEntitiesByKey().size());
 

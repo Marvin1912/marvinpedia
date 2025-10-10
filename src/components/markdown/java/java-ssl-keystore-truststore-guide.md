@@ -70,12 +70,16 @@ his own authentication within his JVM. It is also assumed that the key and the c
 ([RFC 7468](https://datatracker.ietf.org/doc/html/rfc7468)) and are both part of the same file (concatenated).
 A PKCS12 keystore can then be created using OpenSSL and the following command.[[3]](#3)
 
-```openssl pkcs12 -export -in key_and_certificate.pem -out keystore.pkcs12 -name pkcs12Keystore```
+```bash
+openssl pkcs12 -export -in key_and_certificate.pem -out keystore.pkcs12 -name pkcs12Keystore
+```
 
 The keystore can now be imported via Keytool. Please note that the PKCS12 file is already a separate keystore and
 therefore a keystore must be imported into another keystore. The following command can be used for this.
 
-```keytool -importkeystore -srckeystore keystore.pkcs12 -destkeystore dstKeyStore -srcstoretype pkcs12 -alias pkcs12Keystore ```
+```bash
+keytool -importkeystore -srckeystore keystore.pkcs12 -destkeystore dstKeyStore -srcstoretype pkcs12 -alias pkcs12Keystore
+```
 
 (For the sake of simplicity, the alias _pkcs12Keystore_ was used for both steps)
 
