@@ -2,7 +2,7 @@
 id: 17
 name: CSS ::before Pseudo-element
 topic: css
-fileName: css-before-pseudo-element
+fileName: css/css-before-pseudo-element
 ---
 
 # CSS ::before Pseudo-element
