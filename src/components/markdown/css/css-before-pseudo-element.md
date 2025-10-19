@@ -7,7 +7,7 @@ fileName: css/css-before-pseudo-element
 
 # CSS ::before Pseudo-element
 
-## 🧠 The Magic Wand of CSS
+## The Magic Wand of CSS
 
 Imagine you have a magic wand that can add invisible content to your HTML elements - that's exactly what `::before` does! It's like having a tiny ghost that lives inside your elements and can display content *before* the actual content appears.
 
@@ -32,7 +32,7 @@ Think of `::before` as putting a **name tag** on someone's shirt. The person (yo
 
 ## Real Project Example
 
-From our arithmetic settings component, we use `::before` to create decorative blue bars:
+From any example component, we use `::before` to create decorative blue bars:
 
 ```css
 .section-title::before {
@@ -68,13 +68,13 @@ This creates a small blue bar before each section title - no HTML needed!
 
 ## Brain Tips & Tricks
 
-### 🧠 Memory Trick #1:
+### Memory Trick #1:
 Think "**BE**fore" = "BE at the **front**" - it always comes first!
 
-### 🧠 Memory Trick #2:
+### Memory Trick #2:
 `::before` has **two** colons (`::`) because it creates something **extra** that wasn't there before!
 
-### 🧠 Common Pattern:
+### Common Pattern:
 ```css
 /* The magic formula */
 .element::before {
@@ -86,13 +86,13 @@ Think "**BE**fore" = "BE at the **front**" - it always comes first!
 
 ## Best Practices
 
-### ✅ DO:
+### DO:
 - Always include `content` property (even if empty)
 - Use `display: inline-block` for better control
 - Consider accessibility - don't add important content that screen readers might miss
 - Test in different browsers
 
-### ❌ DON'T:
+### DON'T:
 - Forget the `content` property (it won't work!)
 - Overuse for complex layouts
 - Add critical content that should be in HTML
@@ -111,16 +111,7 @@ Sometimes you want just styling without text:
 }
 ```
 
-## Quick Reference
-
-| Use Case | Example |
-|----------|---------|
-| Add icon | `content: "→"` |
-| Add space | `content: "•"` |
-| Add text | `content: "Note: "` |
-| Decoration | `content: ""` + styling |
-
-## 🎯 Remember This
+## Remember This
 
 `::before` is your **CSS assistant** that adds content **before** your elements without cluttering your HTML. It's perfect for visual enhancements, icons, and decorative elements that make your design pop!
 
