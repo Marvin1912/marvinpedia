@@ -91,7 +91,6 @@ function navigateToPage(page) {
   flex-wrap: wrap;
   justify-content: center;
   overflow-y: auto;
-  scrollbar-width: none;
 }
 
 </style>
