@@ -195,15 +195,4 @@ The integrated in-memory caching in `KeycloakTokenService` provides:
 
 For distributed applications or scenarios requiring persistence across restarts, consider using Redis or database-based token caching instead of in-memory storage.
 
-## Best Practices for Client Credentials Flow
-
-1. **Use HTTPS** for all OAuth2 communications
-2. **Store client secrets securely** (environment variables, secret management systems)
-3. **Implement proper error handling** for OAuth2 failures
-4. **Request minimum necessary scopes** to follow principle of least privilege
-5. **Cache tokens appropriately** to reduce unnecessary token requests
-6. **Monitor token expiration** and handle re-authentication gracefully
-7. **Use service-to-service authentication** patterns for microservices
-8. **Validate token audience and scope** when receiving tokens from OAuth2 provider
-
 Spring Security's client credentials flow support provides a secure and straightforward way to implement machine-to-machine authentication while following OAuth2 standards and security best practices.
