@@ -160,37 +160,90 @@ public ClientRegistration keycloakClientRegistration() {
 }
 ```
 
-## Token Storage for Client Credentials
+## Token Caching with In-Memory Storage
 
-Since client credentials flow doesn't support refresh tokens, token management is simpler:
+Since client credentials flow doesn't support refresh tokens, implementing token caching is important to reduce repeated token requests. In-memory caching provides a simple solution for applications with short-lived tokens.
 
-- **In-memory**: For simple applications with short-lived tokens
-- **Database**: For caching tokens to avoid repeated requests
-- **Redis**: For distributed applications needing token sharing
+### In-Memory Token Cache Implementation
 
-## Error Handling
+```java
+@Service
+public class CachedTokenService {
 
-Common client credentials errors and their handling:
+    private final OAuth2AuthorizedClientManager authorizedClientManager;
+    private final Map<String, CachedToken> tokenCache = new ConcurrentHashMap<>();
 
-### Invalid Client Credentials
-- **Cause**: Incorrect client_id or client_secret
-- **Solution**: Verify client registration with OAuth2 provider
-- **HTTP Status**: 401 Unauthorized
+    public CachedTokenService(OAuth2AuthorizedClientManager authorizedClientManager) {
+        this.authorizedClientManager = authorizedClientManager;
+    }
 
-### Invalid Scope
-- **Cause**: Requested scopes not granted to client
-- **Solution**: Update client registration or reduce scope requirements
-- **HTTP Status**: 400 Bad Request
+    public String getAccessToken(String clientId) {
+        CachedToken cachedToken = tokenCache.get(clientId);
 
-### Client Authentication Failed
-- **Cause**: Client authentication method not supported or invalid
-- **Solution**: Check client authentication configuration
-- **HTTP Status**: 401 Unauthorized
+        // Check if we have a valid cached token
+        if (cachedToken != null && !cachedToken.isExpired()) {
+            return cachedToken.getTokenValue();
+        }
 
-### Token Request Failed
-- **Cause**: Token endpoint unreachable or misconfigured
-- **Solution**: Verify token URI and network connectivity
-- **HTTP Status**: Various network/server errors
+        // Token is expired or not cached, request new one
+        String newToken = obtainNewToken(clientId);
+
+        // Cache the new token
+        OAuth2AccessToken accessToken = getAccessToken(clientId);
+        tokenCache.put(clientId, new CachedToken(newToken, accessToken.getExpiresAt()));
+
+        return newToken;
+    }
+
+    private String obtainNewToken(String clientId) {
+        Authentication principal = new UsernamePasswordAuthenticationToken("client-app", null);
+
+        OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+            .withClientRegistrationId(clientId)
+            .principal(principal)
+            .build();
+
+        OAuth2AuthorizedClient authorizedClient =
+            authorizedClientManager.authorize(authorizeRequest);
+
+        return authorizedClient.getAccessToken().getTokenValue();
+    }
+
+    private static class CachedToken {
+        private final String tokenValue;
+        private final Instant expiresAt;
+
+        public CachedToken(String tokenValue, Instant expiresAt) {
+            this.tokenValue = tokenValue;
+            this.expiresAt = expiresAt;
+        }
+
+        public String getTokenValue() {
+            return tokenValue;
+        }
+
+        public boolean isExpired() {
+            return Instant.now().isAfter(expiresAt.minusSeconds(60)); // 60-second buffer
+        }
+    }
+}
+```
+
+### Benefits of In-Memory Caching
+
+- **Reduced Network Calls**: Avoids repeated token requests to OAuth2 provider
+- **Improved Performance**: Faster token retrieval for subsequent requests
+- **Simple Implementation**: No external dependencies required
+- **Automatic Expiration**: Tokens naturally expire when no longer valid
+
+### Considerations
+
+- **Application Restart**: Cached tokens are lost on application restart
+- **Memory Usage**: Cache size grows with the number of different clients
+- **Distributed Applications**: Each instance maintains its own cache
+- **Token Expiration**: Need to handle expired tokens gracefully
+
+For distributed applications or scenarios requiring persistence across restarts, consider using Redis or database-based token caching instead.
 
 ## Best Practices for Client Credentials Flow
 
@@ -202,15 +255,5 @@ Common client credentials errors and their handling:
 6. **Monitor token expiration** and handle re-authentication gracefully
 7. **Use service-to-service authentication** patterns for microservices
 8. **Validate token audience and scope** when receiving tokens from OAuth2 provider
-
-## Common Use Cases
-
-The client credentials flow is ideal for:
-
-- **Backend API communication** between microservices
-- **Scheduled tasks** that need to access APIs
-- **Daemon processes** and background jobs
-- **CI/CD pipelines** that need to authenticate with services
-- **Infrastructure services** that communicate with each other
 
 Spring Security's client credentials flow support provides a secure and straightforward way to implement machine-to-machine authentication while following OAuth2 standards and security best practices.
