@@ -126,20 +126,6 @@ public class KeycloakTokenService {
         return newToken;
     }
 
-    public OAuth2AccessToken getAccessToken(String clientId) {
-        Authentication principal = new UsernamePasswordAuthenticationToken("client-app", null);
-
-        OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
-            .withClientRegistrationId(clientId)
-            .principal(principal)
-            .build();
-
-        OAuth2AuthorizedClient authorizedClient =
-            authorizedClientManager.authorize(authorizeRequest);
-
-        return authorizedClient.getAccessToken();
-    }
-
     private static class CachedToken {
         private final String tokenValue;
         private final Instant expiresAt;
