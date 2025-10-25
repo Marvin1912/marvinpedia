@@ -5,9 +5,9 @@ topic: spring
 fileName: spring/spring-oauth-client-token-requests
 ---
 
-# Spring OAuth Client Token Handling
+# Spring OAuth Client Credentials Flow
 
-Spring Security provides comprehensive support for OAuth2 client functionality, enabling applications to request access tokens from OAuth2/OIDC providers. This guide covers the client-side perspective of obtaining OAuth2 tokens.
+Spring Security provides comprehensive support for the OAuth2 client credentials grant type, which is designed for machine-to-machine communication where no user context is involved. This guide covers the client-side perspective of obtaining OAuth2 tokens using the client credentials method.
 
 ## Core Client Components
 
@@ -19,65 +19,89 @@ The `ClientRegistration` class is the foundation of Spring's OAuth2 client suppo
 - **Client ID**: Unique identifier for the client application
 - **Client Secret**: Confidential credential for the client
 - **Authentication Methods**: How the client authenticates with the token endpoint
-- **Grant Types**: Types of OAuth2 flows the client can use
-- **Redirect URIs**: Where the provider redirects after authorization
-- **Provider Metadata**: Endpoint URLs and provider configuration
+- **Grant Type**: Specifically `CLIENT_CREDENTIALS` for this flow
+- **Scopes**: Permissions requested by the client application
+- **Provider Metadata**: Token endpoint URL and provider configuration
 
 ### OAuth2AuthorizedClientManager
 
-This interface manages the lifecycle of authorized clients and handles token acquisition, refresh, and storage.
+This interface manages the lifecycle of authorized clients and handles token acquisition for the client credentials flow.
 
-## OAuth2 Grant Types from Client Perspective
+## Client Credentials Flow
 
-### 1. Authorization Code Flow
+### Overview
 
-The most common flow for web applications acting on behalf of a user.
+The client credentials flow is used when applications need to access resources on their own behalf rather than on behalf of a user. This is ideal for:
+- Backend services and APIs
+- Machine-to-machine communication
+- Scheduled jobs and background processes
+- Microservices architecture
 
-**Process:**
-1. User is redirected to authorization server
-2. User grants consent
-3. Authorization server redirects back with authorization code
-4. Client exchanges code for access token
+### Flow Characteristics
 
-**Spring Configuration:**
+- **No User Interaction**: The flow doesn't require user authentication or consent
+- **Client Authentication**: Uses client_id and client_secret to authenticate
+- **Token Represents Client**: The access token represents the client application, not a user
+- **Short-lived Tokens**: Access tokens typically have shorter expiration times
+- **No Refresh Tokens**: This flow doesn't support refresh tokens
+
+### Spring Configuration
+
 ```java
-@Bean
-public OAuth2AuthorizedClientManager authorizedClientManager(
-        ClientRegistrationRepository clientRegistrationRepository,
-        OAuth2AuthorizedClientRepository authorizedClientRepository) {
+@Configuration
+public class OAuth2ClientConfig {
 
-    OAuth2AuthorizedClientProvider authorizedClientProvider =
-        OAuth2AuthorizedClientProviderBuilder.builder()
-            .authorizationCode()
-            .refreshToken()
-            .build();
+    @Bean
+    public ClientRegistrationRepository clientRegistrations() {
+        return new InMemoryClientRegistrationRepository(
+            ClientRegistration.withRegistrationId("keycloak")
+                .clientId("your-client-id")
+                .clientSecret("your-client-secret")
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .scope("read", "write")
+                .tokenUri("http://localhost:8080/realms/your-realm/protocol/openid-connect/token")
+                .build()
+        );
+    }
 
-    DefaultOAuth2AuthorizedClientManager authorizedClientManager =
-        new DefaultOAuth2AuthorizedClientManager(
-            clientRegistrationRepository, authorizedClientRepository);
-    authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+    @Bean
+    public OAuth2AuthorizedClientManager authorizedClientManager(
+            ClientRegistrationRepository clientRegistrationRepository,
+            OAuth2AuthorizedClientRepository authorizedClientRepository) {
 
-    return authorizedClientManager;
+        OAuth2AuthorizedClientProvider authorizedClientProvider =
+            OAuth2AuthorizedClientProviderBuilder.builder()
+                .clientCredentials()
+                .build();
+
+        DefaultOAuth2AuthorizedClientManager authorizedClientManager =
+            new DefaultOAuth2AuthorizedClientManager(
+                clientRegistrationRepository, authorizedClientRepository);
+        authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+
+        return authorizedClientManager;
+    }
 }
 ```
 
-### 2. Client Credentials Flow
+### Token Service Implementation
 
-Used for machine-to-machine communication where no user context is involved.
-
-**Key Characteristics:**
-- Client authenticates using client_id and client_secret
-- Token represents the client application, not a user
-- Common for backend services and APIs
-
-**Example Implementation:**
 ```java
 @Service
 public class KeycloakTokenService {
 
     private final OAuth2AuthorizedClientManager authorizedClientManager;
 
-    public String obtainAccessToken(String clientId, Authentication principal) {
+    public KeycloakTokenService(OAuth2AuthorizedClientManager authorizedClientManager) {
+        this.authorizedClientManager = authorizedClientManager;
+    }
+
+    public String obtainAccessToken(String clientId) {
+        // The principal is mainly for Spring Security's internal tracking
+        // For client credentials flow, OAuth2 providers typically ignore it
+        Authentication principal = new UsernamePasswordAuthenticationToken("client-app", null);
+
         OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
             .withClientRegistrationId(clientId)
             .principal(principal)
@@ -88,97 +112,105 @@ public class KeycloakTokenService {
 
         return authorizedClient.getAccessToken().getTokenValue();
     }
+
+    public OAuth2AccessToken getAccessToken(String clientId) {
+        Authentication principal = new UsernamePasswordAuthenticationToken("client-app", null);
+
+        OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+            .withClientRegistrationId(clientId)
+            .principal(principal)
+            .build();
+
+        OAuth2AuthorizedClient authorizedClient =
+            authorizedClientManager.authorize(authorizeRequest);
+
+        return authorizedClient.getAccessToken();
+    }
 }
 ```
 
-### 3. Resource Owner Password Credentials
+## Principal Significance in Client Credentials Flow
 
-Flow where user credentials are exchanged directly for tokens (less common, recommended only for trusted applications).
+In the client credentials flow, the principal parameter has limited significance:
 
-## Principal Significance in Token Requests
+- **Spring Security Internal Tracking**: Mainly used for Spring Security's internal request handling
+- **Provider Ignores Principal**: OAuth2 providers like Keycloak typically ignore the principal value
+- **Focus on Client Credentials**: The provider validates client_id + client_secret authentication
+- **Placeholder Value**: The principal value (e.g., "client-app") is essentially a placeholder
 
-The principal parameter in OAuth2 token requests serves different purposes depending on the flow:
+**What OAuth2 Providers Actually Validate:**
+1. Client authentication (client_id and client_secret)
+2. Client configuration and registration status
+3. Requested scopes are allowed for the client
+4. Token endpoint is properly configured
 
-### For Client Credentials Flow:
-- **Mainly for Spring Security's internal tracking**
-- **OAuth2 providers typically ignore the principal value**
-- **Focus is on client authentication (client_id + client_secret)**
-- Principal value is often a placeholder like "client-app"
-
-### For Authorization Code Flow:
-- **Represents the actual authenticated user**
-- **Becomes the subject in the access token**
-- **Essential for user-centric authorization decisions**
-
-## Token Management Strategies
-
-### Automatic Token Refresh
-
-Spring Security can automatically refresh expired tokens:
+## Keycloak Configuration Example
 
 ```java
 @Bean
-public OAuth2AuthorizedClientProvider authorizedClientProvider() {
-    return OAuth2AuthorizedClientProviderBuilder.builder()
-        .authorizationCode()
-        .clientCredentials()
-        .refreshToken(configurer -> configurer.clockSkew(Duration.ofSeconds(60)))
+public ClientRegistration keycloakClientRegistration() {
+    return ClientRegistration.withRegistrationId("keycloak")
+        .clientId("your-client-id")
+        .clientSecret("your-client-secret")
+        .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+        .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+        .scope("api:read", "api:write", "admin")
+        .tokenUri("http://localhost:8080/realms/your-realm/protocol/openid-connect/token")
         .build();
 }
 ```
 
-### Token Storage
+## Token Storage for Client Credentials
 
-Clients can store tokens in various ways:
-- **In-memory**: For simple applications
-- **Database**: For persistent storage across restarts
-- **Redis**: For distributed applications
+Since client credentials flow doesn't support refresh tokens, token management is simpler:
 
-## Common Client Configurations
-
-### Keycloak Configuration Example
-
-```java
-@Bean
-public ClientRegistrationRepository clientRegistrations() {
-    return new InMemoryClientRegistrationRepository(
-        ClientRegistration.withRegistrationId("keycloak")
-            .clientId("your-client-id")
-            .clientSecret("your-client-secret")
-            .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-            .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-            .scope("read", "write")
-            .tokenUri("http://localhost:8080/realms/your-realm/protocol/openid-connect/token")
-            .build()
-    );
-}
-```
-
+- **In-memory**: For simple applications with short-lived tokens
+- **Database**: For caching tokens to avoid repeated requests
+- **Redis**: For distributed applications needing token sharing
 
 ## Error Handling
 
-Common OAuth2 client errors and their handling:
+Common client credentials errors and their handling:
 
 ### Invalid Client Credentials
 - **Cause**: Incorrect client_id or client_secret
 - **Solution**: Verify client registration with OAuth2 provider
+- **HTTP Status**: 401 Unauthorized
 
-### Invalid Grant
-- **Cause**: Authorization code expired or already used
-- **Solution**: Restart the authorization flow
-
-### Insufficient Scope
+### Invalid Scope
 - **Cause**: Requested scopes not granted to client
 - **Solution**: Update client registration or reduce scope requirements
+- **HTTP Status**: 400 Bad Request
 
-## Best Practices
+### Client Authentication Failed
+- **Cause**: Client authentication method not supported or invalid
+- **Solution**: Check client authentication configuration
+- **HTTP Status**: 401 Unauthorized
+
+### Token Request Failed
+- **Cause**: Token endpoint unreachable or misconfigured
+- **Solution**: Verify token URI and network connectivity
+- **HTTP Status**: Various network/server errors
+
+## Best Practices for Client Credentials Flow
 
 1. **Use HTTPS** for all OAuth2 communications
-2. **Store client secrets securely** (environment variables, secret management)
+2. **Store client secrets securely** (environment variables, secret management systems)
 3. **Implement proper error handling** for OAuth2 failures
-4. **Use appropriate grant types** for your use case
-5. **Validate tokens** when received from OAuth2 provider
-6. **Handle token expiration** gracefully with refresh mechanisms
-7. **Limit scope requests** to minimum necessary permissions
+4. **Request minimum necessary scopes** to follow principle of least privilege
+5. **Cache tokens appropriately** to reduce unnecessary token requests
+6. **Monitor token expiration** and handle re-authentication gracefully
+7. **Use service-to-service authentication** patterns for microservices
+8. **Validate token audience and scope** when receiving tokens from OAuth2 provider
 
-Spring Security's OAuth2 client support provides a robust foundation for integrating with OAuth2/OIDC providers while maintaining security best practices and handling the complexities of token management automatically.
+## Common Use Cases
+
+The client credentials flow is ideal for:
+
+- **Backend API communication** between microservices
+- **Scheduled tasks** that need to access APIs
+- **Daemon processes** and background jobs
+- **CI/CD pipelines** that need to authenticate with services
+- **Infrastructure services** that communicate with each other
+
+Spring Security's client credentials flow support provides a secure and straightforward way to implement machine-to-machine authentication while following OAuth2 standards and security best practices.
