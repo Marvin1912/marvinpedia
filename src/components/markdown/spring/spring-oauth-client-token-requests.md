@@ -154,24 +154,6 @@ public ClientRegistrationRepository clientRegistrations() {
 }
 ```
 
-### Google OAuth2 Configuration
-
-```java
-ClientRegistration googleRegistration = ClientRegistration
-    .withRegistrationId("google")
-    .clientId("google-client-id")
-    .clientSecret("google-client-secret")
-    .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-    .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
-    .scope("openid", "profile", "email")
-    .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
-    .tokenUri("https://www.googleapis.com/oauth2/v4/token")
-    .userInfoUri("https://www.googleapis.com/oauth2/v2/userinfo")
-    .userNameAttributeName(IdTokenClaimNames.SUB)
-    .clientName("Google")
-    .build();
-```
 
 ## Error Handling
 
