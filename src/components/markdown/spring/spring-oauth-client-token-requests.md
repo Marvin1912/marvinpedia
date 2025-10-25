@@ -85,21 +85,28 @@ public class OAuth2ClientConfig {
 }
 ```
 
-### Token Service Implementation
+### Token Service Implementation with Caching
 
 ```java
 @Service
 public class KeycloakTokenService {
 
     private final OAuth2AuthorizedClientManager authorizedClientManager;
+    private final Map<String, CachedToken> tokenCache = new ConcurrentHashMap<>();
 
     public KeycloakTokenService(OAuth2AuthorizedClientManager authorizedClientManager) {
         this.authorizedClientManager = authorizedClientManager;
     }
 
     public String obtainAccessToken(String clientId) {
-        // The principal is mainly for Spring Security's internal tracking
-        // For client credentials flow, OAuth2 providers typically ignore it
+        CachedToken cachedToken = tokenCache.get(clientId);
+
+        // Check if we have a valid cached token
+        if (cachedToken != null && !cachedToken.isExpired()) {
+            return cachedToken.getTokenValue();
+        }
+
+        // Token is expired or not cached, request new one
         Authentication principal = new UsernamePasswordAuthenticationToken("client-app", null);
 
         OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
@@ -110,7 +117,13 @@ public class KeycloakTokenService {
         OAuth2AuthorizedClient authorizedClient =
             authorizedClientManager.authorize(authorizeRequest);
 
-        return authorizedClient.getAccessToken().getTokenValue();
+        String newToken = authorizedClient.getAccessToken().getTokenValue();
+        OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
+
+        // Cache the new token
+        tokenCache.put(clientId, new CachedToken(newToken, accessToken.getExpiresAt()));
+
+        return newToken;
     }
 
     public OAuth2AccessToken getAccessToken(String clientId) {
@@ -125,6 +138,24 @@ public class KeycloakTokenService {
             authorizedClientManager.authorize(authorizeRequest);
 
         return authorizedClient.getAccessToken();
+    }
+
+    private static class CachedToken {
+        private final String tokenValue;
+        private final Instant expiresAt;
+
+        public CachedToken(String tokenValue, Instant expiresAt) {
+            this.tokenValue = tokenValue;
+            this.expiresAt = expiresAt;
+        }
+
+        public String getTokenValue() {
+            return tokenValue;
+        }
+
+        public boolean isExpired() {
+            return Instant.now().isAfter(expiresAt.minusSeconds(60)); // 60-second buffer
+        }
     }
 }
 ```
@@ -160,76 +191,9 @@ public ClientRegistration keycloakClientRegistration() {
 }
 ```
 
-## Token Caching with In-Memory Storage
+## Token Caching Benefits
 
-Since client credentials flow doesn't support refresh tokens, implementing token caching is important to reduce repeated token requests. In-memory caching provides a simple solution for applications with short-lived tokens.
-
-### In-Memory Token Cache Implementation
-
-```java
-@Service
-public class CachedTokenService {
-
-    private final OAuth2AuthorizedClientManager authorizedClientManager;
-    private final Map<String, CachedToken> tokenCache = new ConcurrentHashMap<>();
-
-    public CachedTokenService(OAuth2AuthorizedClientManager authorizedClientManager) {
-        this.authorizedClientManager = authorizedClientManager;
-    }
-
-    public String getAccessToken(String clientId) {
-        CachedToken cachedToken = tokenCache.get(clientId);
-
-        // Check if we have a valid cached token
-        if (cachedToken != null && !cachedToken.isExpired()) {
-            return cachedToken.getTokenValue();
-        }
-
-        // Token is expired or not cached, request new one
-        String newToken = obtainNewToken(clientId);
-
-        // Cache the new token
-        OAuth2AccessToken accessToken = getAccessToken(clientId);
-        tokenCache.put(clientId, new CachedToken(newToken, accessToken.getExpiresAt()));
-
-        return newToken;
-    }
-
-    private String obtainNewToken(String clientId) {
-        Authentication principal = new UsernamePasswordAuthenticationToken("client-app", null);
-
-        OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
-            .withClientRegistrationId(clientId)
-            .principal(principal)
-            .build();
-
-        OAuth2AuthorizedClient authorizedClient =
-            authorizedClientManager.authorize(authorizeRequest);
-
-        return authorizedClient.getAccessToken().getTokenValue();
-    }
-
-    private static class CachedToken {
-        private final String tokenValue;
-        private final Instant expiresAt;
-
-        public CachedToken(String tokenValue, Instant expiresAt) {
-            this.tokenValue = tokenValue;
-            this.expiresAt = expiresAt;
-        }
-
-        public String getTokenValue() {
-            return tokenValue;
-        }
-
-        public boolean isExpired() {
-            return Instant.now().isAfter(expiresAt.minusSeconds(60)); // 60-second buffer
-        }
-    }
-}
-```
-
-### Benefits of In-Memory Caching
+The integrated in-memory caching in `KeycloakTokenService` provides:
 
 - **Reduced Network Calls**: Avoids repeated token requests to OAuth2 provider
 - **Improved Performance**: Faster token retrieval for subsequent requests
@@ -241,9 +205,9 @@ public class CachedTokenService {
 - **Application Restart**: Cached tokens are lost on application restart
 - **Memory Usage**: Cache size grows with the number of different clients
 - **Distributed Applications**: Each instance maintains its own cache
-- **Token Expiration**: Need to handle expired tokens gracefully
+- **Token Expiration**: 60-second buffer ensures tokens are refreshed before actual expiration
 
-For distributed applications or scenarios requiring persistence across restarts, consider using Redis or database-based token caching instead.
+For distributed applications or scenarios requiring persistence across restarts, consider using Redis or database-based token caching instead of in-memory storage.
 
 ## Best Practices for Client Credentials Flow
 
