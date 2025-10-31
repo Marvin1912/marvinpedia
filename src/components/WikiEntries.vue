@@ -1,6 +1,9 @@
 <template>
   <div class="wikiEntriesContent">
-    <h1 class="wikiEntryHeadline">{{ topicName }}</h1>
+    <div class="headline-container">
+      <h1 class="wikiEntryHeadline">{{ topicName }}</h1>
+      <div class="headline-underline"></div>
+    </div>
     <div class="wikiEntries">
       <ul class="wiki-list">
         <li v-for="names in namesRefs" :key="names.id" class="wiki-list-item">
@@ -26,16 +29,75 @@ const namesRefs = getMetaData()
 
 <style scoped>
 
-.wikiEntryHeadline {
-  margin: 0;
-  padding: 0;
-}
-
 .wikiEntriesContent {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
+  padding: 2rem 1rem;
+}
+
+.headline-container {
+  text-align: center;
+  margin-bottom: 3rem;
+  position: relative;
+}
+
+.wikiEntryHeadline {
+  margin: 0;
+  padding: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a365d;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  line-height: 1.3;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+
+  @media only screen and (max-width: 768px) {
+    font-size: 1.6rem;
+    letter-spacing: 1.2px;
+  }
+
+  @media only screen and (max-width: 480px) {
+    font-size: 1.4rem;
+    letter-spacing: 0.8px;
+  }
+}
+
+.headline-underline {
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 3px;
+  background: linear-gradient(135deg, #2b6cb0 0%, #2d3748 100%);
+  border-radius: 2px;
+  box-shadow: 0 2px 6px rgba(43, 108, 176, 0.3);
+
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(135deg, #2b6cb0 0%, #2d3748 100%);
+    opacity: 0.7;
+    border-radius: 1px;
+  }
+
+  @media only screen and (max-width: 480px) {
+    width: 80px;
+
+    &::before {
+      width: 40px;
+    }
+  }
 }
 
 .wikiEntries {
