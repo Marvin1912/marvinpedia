@@ -5,7 +5,12 @@
       class="item-card">
     <div class="flipping-container" :class="{ flipped: showDescription }">
       <div class="front">
-        <h3>{{ title }}</h3>
+        <div class="header-content">
+          <div class="title-wrapper">
+            <h3>{{ title }}</h3>
+            <div class="title-underline"></div>
+          </div>
+        </div>
         <img :src="image" alt="" class="item-image"/>
       </div>
       <div class="back">
@@ -82,6 +87,50 @@ function mouse_left() {
 
 .front {
   background-color: #ffffff;
+}
+
+.header-content {
+  padding: 1.5rem 1rem 0.5rem;
+  text-align: center;
+  width: 100%;
+}
+
+.title-wrapper {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #2c3e50;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.3;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+  @media only screen and (max-width: 768px) {
+    font-size: 1.2rem;
+  }
+}
+
+.title-underline {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 3px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.item-card:hover .title-underline {
+  width: 80%;
 }
 
 .back {
