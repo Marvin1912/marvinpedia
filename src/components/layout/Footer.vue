@@ -1,12 +1,17 @@
 <script>
 export default {
   name: "Header",
+  data() {
+    return {
+      currentYear: new Date().getFullYear()
+    };
+  }
 };
 </script>
 
 <template>
   <div class="container">
-    <p id="bottom-line">© 2024 Marvinpedia - All Rights Reserved</p>
+    <p id="bottom-line">© {{ currentYear }} Marvinpedia - All Rights Reserved</p>
   </div>
 </template>
 
