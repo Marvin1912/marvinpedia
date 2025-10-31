@@ -46,28 +46,24 @@ const namesRefs = getMetaData()
 .wikiEntryHeadline {
   margin: 0;
   padding: 0;
-  font-size: 3rem;
-  font-weight: 800;
-  color: #2c3e50;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a365d;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  line-height: 1.2;
+  letter-spacing: 1.5px;
+  line-height: 1.3;
   position: relative;
   z-index: 1;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 
   @media only screen and (max-width: 768px) {
-    font-size: 2.2rem;
-    letter-spacing: 1.5px;
+    font-size: 1.6rem;
+    letter-spacing: 1.2px;
   }
 
   @media only screen and (max-width: 480px) {
-    font-size: 1.8rem;
-    letter-spacing: 1px;
+    font-size: 1.4rem;
+    letter-spacing: 0.8px;
   }
 }
 
@@ -76,30 +72,30 @@ const namesRefs = getMetaData()
   bottom: -15px;
   left: 50%;
   transform: translateX(-50%);
-  width: 150px;
-  height: 4px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  width: 120px;
+  height: 3px;
+  background: linear-gradient(135deg, #2b6cb0 0%, #2d3748 100%);
   border-radius: 2px;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 6px rgba(43, 108, 176, 0.3);
 
   &::before {
     content: '';
     position: absolute;
-    bottom: -8px;
+    bottom: -6px;
     left: 50%;
     transform: translateX(-50%);
-    width: 80px;
+    width: 60px;
     height: 2px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    opacity: 0.6;
+    background: linear-gradient(135deg, #2b6cb0 0%, #2d3748 100%);
+    opacity: 0.7;
     border-radius: 1px;
   }
 
   @media only screen and (max-width: 480px) {
-    width: 100px;
+    width: 80px;
 
     &::before {
-      width: 60px;
+      width: 40px;
     }
   }
 }
