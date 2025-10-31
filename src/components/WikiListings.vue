@@ -21,7 +21,7 @@ import img_spring from '@/components/icons/Spring.png'
 import img_angular from '@/components/icons/Angular.png'
 import img_kubernetes from '@/components/icons/Kubernetes.png'
 import img_css from '@/components/icons/css.png'
-import img_perceptron from '@/components/icons/Perceptron.png'
+import img_ml from '@/components/icons/MachineLearning.png'
 import {useRouter} from "vue-router";
 
 const router = useRouter()
@@ -79,7 +79,7 @@ const wikiListings = [
   {
     id: 8,
     title: 'Machine Learning',
-    image: img_perceptron,
+    image: img_ml,
     toPage: '/wiki/machine-learning',
     description: 'Machine Learning is a field of artificial intelligence that enables computers to learn and make decisions from data without being explicitly programmed. It encompasses various algorithms and techniques including neural networks, decision trees, and statistical methods. ML powers applications like recommendation systems, image recognition, natural language processing, and predictive analytics across industries from healthcare to finance.'
   }
