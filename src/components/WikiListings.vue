@@ -21,6 +21,7 @@ import img_spring from '@/components/icons/Spring.png'
 import img_angular from '@/components/icons/Angular.png'
 import img_kubernetes from '@/components/icons/Kubernetes.png'
 import img_css from '@/components/icons/css.png'
+import img_perceptron from '@/components/icons/Perceptron.png'
 import {useRouter} from "vue-router";
 
 const router = useRouter()
@@ -69,11 +70,18 @@ const wikiListings = [
     description: 'Kubernetes is an open-source container orchestration platform that automates the deployment, scaling, and management of containerized applications. It helps developers efficiently run applications across clusters of machines, ensuring high availability, scalability, and reliability. Kubernetes provides features like load balancing, service discovery, automated rollouts and rollbacks, self-healing, and resource management, making it a powerful tool for modern cloud-native application development.'
   },
   {
-    id: 6,
+    id: 7,
     title: 'CSS',
     image: img_css,
     toPage: '/wiki/css',
     description: 'CSS (Cascading Style Sheets) is the language used to control the visual appearance of web pages. It lets you define how HTML elements should look — including layout, colors, fonts, spacing, animations, and responsiveness. By separating content (HTML) from presentation (CSS), it makes web design more flexible, maintainable, and consistent across multiple pages.'
+  },
+  {
+    id: 8,
+    title: 'Machine Learning',
+    image: img_perceptron,
+    toPage: '/wiki/machine-learning',
+    description: 'Machine Learning is a field of artificial intelligence that enables computers to learn and make decisions from data without being explicitly programmed. It encompasses various algorithms and techniques including neural networks, decision trees, and statistical methods. ML powers applications like recommendation systems, image recognition, natural language processing, and predictive analytics across industries from healthcare to finance.'
   }
 ];
 
