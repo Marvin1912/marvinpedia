@@ -98,10 +98,10 @@ This is exactly why real machine learning is challenging:
 
 **`make_blobs` remembers each point's origin story - that's how it knows the "correct" answer, even if points end up in confusing locations!**
 
+This fundamental principle is crucial for understanding supervised learning: the algorithm learns from ground truth labels that were assigned during data generation, not from spatial relationships alone. When training neural networks or classifiers, this distinction between provenance (where a point came from) and position (where it ended up) determines whether the model can successfully learn the underlying decision boundary.
+
+**Mathematical Context:** The generated data `X, y` serves as the training foundation for linear classifiers like the Perceptron. Here, `X` represents the coordinate matrix `[[x₁,y₁], [x₂,y₂], ...]` and `y` contains the binary labels `[0, 0, 1, 1, ...]`. The Perceptron learns a decision boundary by finding optimal weights `w₁, w₂` and bias `b` that satisfy `w₁·x + w₂·y + b > 0` for class 1 and `≤ 0` for class 0. The `random_state` parameter ensures reproducible blob generation, which is essential for consistent mathematical analysis and algorithm comparison. Clean, well-separated blobs create ideal learning conditions where the decision boundary converges quickly, while overlapping blobs simulate the noise and ambiguity found in real-world datasets, forcing the algorithm to iterate through multiple epochs to find an optimal solution.
+
 ## Memory Hook
 
 **Home Base Rule**: Every point keeps the label of its home base, even if it wanders into the neighbor's yard!
-
----
-
-*Perfect for refreshing your memory about how make_blobs creates training data for neural networks!*
