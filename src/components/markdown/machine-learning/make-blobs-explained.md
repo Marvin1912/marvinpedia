@@ -98,10 +98,8 @@ This is exactly why real machine learning is challenging:
 
 **`make_blobs` remembers each point's origin story - that's how it knows the "correct" answer, even if points end up in confusing locations!**
 
+This fundamental principle is crucial for understanding supervised learning: the algorithm learns from ground truth labels that were assigned during data generation, not from spatial relationships alone. When training neural networks or classifiers, this distinction between provenance (where a point came from) and position (where it ended up) determines whether the model can successfully learn the underlying decision boundary. Clean, well-separated blobs create ideal learning conditions, while overlapping blobs simulate the noise and ambiguity found in real-world datasets, preparing algorithms for the challenges they'll face with actual data.
+
 ## Memory Hook
 
 **Home Base Rule**: Every point keeps the label of its home base, even if it wanders into the neighbor's yard!
-
----
-
-*Perfect for refreshing your memory about how make_blobs creates training data for neural networks!*
