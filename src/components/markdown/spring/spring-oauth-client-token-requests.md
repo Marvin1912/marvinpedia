@@ -11,21 +11,21 @@ Spring Security provides comprehensive support for the OAuth2 client credentials
 
 ## Core Client Components
 
-### Client Registration
+### Spring Boot Auto-Configuration
 
-The `ClientRegistration` class is the foundation of Spring's OAuth2 client support, representing a registered client with an OAuth2 provider.
+Spring Boot automatically configures all OAuth2 client components when you provide the necessary properties. This eliminates the need for manual bean creation and follows Spring Boot's convention-over-configuration approach.
 
-**Key Components:**
-- **Client ID**: Unique identifier for the client application
-- **Client Secret**: Confidential credential for the client
-- **Authentication Methods**: How the client authenticates with the token endpoint
-- **Grant Type**: Specifically `CLIENT_CREDENTIALS` for this flow
-- **Scopes**: Permissions requested by the client application
-- **Provider Metadata**: Token endpoint URL and provider configuration
+**Auto-Configured Components:**
+- **ClientRegistrationRepository**: Automatically created from properties
+- **OAuth2AuthorizedClientService**: Configured with appropriate storage implementation
+- **AuthorizedClientServiceOAuth2AuthorizedClientManager**: Set up for background/scheduled operations
+- **OAuth2AuthorizedClientProvider**: Configured for client credentials flow
 
-### OAuth2AuthorizedClientManager
-
-This interface manages the lifecycle of authorized clients and handles token acquisition for the client credentials flow.
+**Property-Based Configuration Benefits:**
+- **Zero Code Configuration**: No Java configuration classes needed
+- **Environment-Specific Settings**: Easy to change configuration per environment
+- **Security**: Secrets can be externalized and managed properly
+- **Maintainability**: Configuration is centralized in properties files
 
 ## Client Credentials Flow
 
@@ -45,106 +45,64 @@ The client credentials flow is used when applications need to access resources o
 - **Short-lived Tokens**: Access tokens typically have shorter expiration times
 - **No Refresh Tokens**: This flow doesn't support refresh tokens
 
-### Spring Configuration
+### Spring Boot Configuration
 
-```java
-@Configuration
-public class OAuth2ClientConfig {
+With Spring Boot's auto-configuration, you can configure OAuth2 clients entirely through properties. No manual bean configuration is required.
 
-    @Bean
-    public ClientRegistrationRepository clientRegistrations() {
-        return new InMemoryClientRegistrationRepository(
-            ClientRegistration.withRegistrationId("keycloak")
-                .clientId("your-client-id")
-                .clientSecret("your-client-secret")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                .scope("read", "write")
-                .tokenUri("http://localhost:8080/realms/your-realm/protocol/openid-connect/token")
-                .build()
-        );
-    }
-
-    @Bean
-    public OAuth2AuthorizedClientManager authorizedClientManager(
-            ClientRegistrationRepository clientRegistrationRepository,
-            OAuth2AuthorizedClientRepository authorizedClientRepository) {
-
-        OAuth2AuthorizedClientProvider authorizedClientProvider =
-            OAuth2AuthorizedClientProviderBuilder.builder()
-                .clientCredentials()
-                .build();
-
-        DefaultOAuth2AuthorizedClientManager authorizedClientManager =
-            new DefaultOAuth2AuthorizedClientManager(
-                clientRegistrationRepository, authorizedClientRepository);
-        authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
-
-        return authorizedClientManager;
-    }
-}
+```yaml
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: your-client-id
+            client-secret: your-client-secret
+            authorization-grant-type: client_credentials
+            client-authentication-method: basic
+            scope: read,write
+        provider:
+          keycloak:
+            token-uri: http://localhost:8080/realms/your-realm/protocol/openid-connect/token
 ```
 
-### Token Service Implementation with Caching
+Spring Boot will automatically:
+- Create the `ClientRegistrationRepository` bean
+- Configure the `OAuth2AuthorizedClientService`
+- Set up the `AuthorizedClientServiceOAuth2AuthorizedClientManager`
+- Apply the client credentials provider
+
+### Service Implementation
+
+With Spring Boot's auto-configuration, you can directly inject the `OAuth2AuthorizedClientManager`:
 
 ```java
 @Service
 public class KeycloakTokenService {
 
     private final OAuth2AuthorizedClientManager authorizedClientManager;
-    private final Map<String, CachedToken> tokenCache = new ConcurrentHashMap<>();
 
     public KeycloakTokenService(OAuth2AuthorizedClientManager authorizedClientManager) {
         this.authorizedClientManager = authorizedClientManager;
     }
 
-    public String obtainAccessToken(String clientId) {
-        CachedToken cachedToken = tokenCache.get(clientId);
-
-        // Check if we have a valid cached token
-        if (cachedToken != null && !cachedToken.isExpired()) {
-            return cachedToken.getTokenValue();
-        }
-
-        // Token is expired or not cached, request new one
+    public String obtainAccessToken() {
         Authentication principal = new UsernamePasswordAuthenticationToken("client-app", null);
 
         OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
-            .withClientRegistrationId(clientId)
+            .withClientRegistrationId("keycloak")
             .principal(principal)
             .build();
 
         OAuth2AuthorizedClient authorizedClient =
             authorizedClientManager.authorize(authorizeRequest);
 
-        String newToken = authorizedClient.getAccessToken().getTokenValue();
-        OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
-
-        // Cache the new token
-        tokenCache.put(clientId, new CachedToken(newToken, accessToken.getExpiresAt()));
-
-        return newToken;
-    }
-
-    private static class CachedToken {
-        private final String tokenValue;
-        private final Instant expiresAt;
-
-        public CachedToken(String tokenValue, Instant expiresAt) {
-            this.tokenValue = tokenValue;
-            this.expiresAt = expiresAt;
-        }
-
-        public String getTokenValue() {
-            return tokenValue;
-        }
-
-        public boolean isExpired() {
-            return Instant.now().isAfter(expiresAt.minusSeconds(60)); // 60-second buffer
-        }
+        return authorizedClient.getAccessToken().getTokenValue();
     }
 }
 ```
+
+**Note**: Spring Boot automatically creates the `OAuth2AuthorizedClientManager` bean when OAuth2 client properties are configured.
 
 ## Principal Significance in Client Credentials Flow
 
@@ -161,38 +119,61 @@ In the client credentials flow, the principal parameter has limited significance
 3. Requested scopes are allowed for the client
 4. Token endpoint is properly configured
 
-## Keycloak Configuration Example
+## Configuration Property Reference
 
-```java
-@Bean
-public ClientRegistration keycloakClientRegistration() {
-    return ClientRegistration.withRegistrationId("keycloak")
-        .clientId("your-client-id")
-        .clientSecret("your-client-secret")
-        .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-        .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-        .scope("api:read", "api:write", "admin")
-        .tokenUri("http://localhost:8080/realms/your-realm/protocol/openid-connect/token")
-        .build();
-}
+### Client Registration Properties
+
+For Keycloak configuration, use these properties in your `application.yml`:
+
+```yaml
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            # Required: Client identifier from Keycloak
+            client-id: ${KEYCLOAK_CLIENT_ID}
+            # Required: Client secret from Keycloak
+            client-secret: ${KEYCLOAK_CLIENT_SECRET}
+            # Required: Use client credentials flow
+            authorization-grant-type: client_credentials
+            # Required: How to authenticate with token endpoint
+            client-authentication-method: basic
+            # Optional: Comma-separated list of scopes
+            scope: api:read,api:write,admin
+        provider:
+          keycloak:
+            # Required: Keycloak token endpoint URL
+            token-uri: ${KEYCLOAK_TOKEN_URI:http://localhost:8080/realms/your-realm/protocol/openid-connect/token}
 ```
 
-## Token Caching Benefits
+**Environment Variable Support:**
+- `${KEYCLOAK_CLIENT_ID}`: Your Keycloak client ID
+- `${KEYCLOAK_CLIENT_SECRET}`: Your Keycloak client secret
+- `${KEYCLOAK_TOKEN_URI}`: Keycloak token endpoint URL
 
-The integrated in-memory caching in `KeycloakTokenService` provides:
+## Token Persistence and Caching
 
-- **Reduced Network Calls**: Avoids repeated token requests to OAuth2 provider
-- **Improved Performance**: Faster token retrieval for subsequent requests
-- **Simple Implementation**: No external dependencies required
-- **Automatic Expiration**: Tokens naturally expire when no longer valid
+The `AuthorizedClientServiceOAuth2AuthorizedClientManager` automatically handles token persistence through the `OAuth2AuthorizedClientService`:
 
-### Considerations
+### Spring Boot Auto-Configuration Benefits
 
-- **Application Restart**: Cached tokens are lost on application restart
-- **Memory Usage**: Cache size grows with the number of different clients
-- **Distributed Applications**: Each instance maintains its own cache
-- **Token Expiration**: 60-second buffer ensures tokens are refreshed before actual expiration
+- **Automatic Token Management**: Tokens are automatically cached and reused until expiration
+- **Zero Code Configuration**: No manual bean creation required
+- **Environment Flexibility**: Easy to switch between different OAuth2 providers
+- **Built-in Security**: Follows Spring Security best practices automatically
+- **Production Ready**: Configured with appropriate defaults for client credentials flow
 
-For distributed applications or scenarios requiring persistence across restarts, consider using Redis or database-based token caching instead of in-memory storage.
+### Default Storage Implementation
 
-Spring Security's client credentials flow support provides a secure and straightforward way to implement machine-to-machine authentication while following OAuth2 standards and security best practices.
+Spring Boot automatically provides:
+
+- **InMemoryOAuth2AuthorizedClientService**: Default storage for single-instance applications
+- **Automatic Token Caching**: Tokens are cached until they expire
+- **Smart Token Refresh**: Automatically requests new tokens when needed
+- **Failure Handling**: Proper cleanup of invalid tokens
+
+For distributed applications, you can easily override the storage implementation with JDBC or Redis-based solutions.
+
+Spring Boot's auto-configuration approach provides a secure, maintainable, and production-ready way to implement OAuth2 client credentials flow while following industry best practices.
