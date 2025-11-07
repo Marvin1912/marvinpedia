@@ -1,12 +1,12 @@
 # Marvinpedia - Private Knowledge Management System
 
-Marvinpedia is a modern, personal knowledge management system built with Vue 3 and Vite. It serves as a **private knowledge base** designed for organizing, storing, and accessing technical documentation, code snippets, and learning materials across various technology domains.
+Marvinpedia is a modern, personal knowledge management system built with Vue 3 and Vite. It serves as a **private knowledge base** designed for organizing, storing, and accessing code snippets, learning materials, and technical notes across various technology domains.
 
 ## 🎯 Purpose
 
 Marvinpedia is your personal digital brain for technical knowledge. Whether you're a developer, engineer, or technical professional, this system provides a centralized, organized space to:
 
-- **Store** technical notes and documentation from your learning journey
+- **Store** technical notes and insights from your learning journey
 - **Organize** knowledge by technology domains and topics
 - **Access** quick reference materials and code examples
 - **Maintain** a personal library of solutions and best practices
@@ -102,8 +102,8 @@ fileName: "file-name"
 // Your code snippet
 ```
 
-## Documentation
-Your technical notes and explanations...
+## Notes
+Your technical insights and explanations...
 ```
 
 ### Content Structure
@@ -127,9 +127,9 @@ Perfect for:
 - **Personal learning journal**: Document your programming journey
 - **Code snippet library**: Store reusable code patterns
 - **Technical reference**: Quick access to implementation details
-- **Team knowledge sharing**: Share documentation with your team
+- **Team knowledge sharing**: Share insights with your team
 - **Interview preparation**: Organize technical concepts and examples
-- **Project documentation**: Maintain project-specific knowledge
+- **Project notes**: Maintain project-specific insights
 
 ## 🔒 **Privacy-Focused**
 
