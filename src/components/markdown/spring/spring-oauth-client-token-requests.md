@@ -176,123 +176,113 @@ Spring Boot automatically provides:
 
 For distributed applications, you can easily override the storage implementation with JDBC or Redis-based solutions.
 
-## Token Expiry Skew Configuration
+## Client Credentials Provider Clock Skew Configuration
 
-Clock skew is the time difference between client and server systems, which can cause tokens to be rejected before their actual expiration. Spring Security provides configuration options to handle these timing discrepancies.
+The `ClientCredentialsOAuth2AuthorizedClientProvider` supports clock skew configuration to handle timing discrepancies when determining whether cached tokens need to be refreshed. This prevents token renewal failures due to clock differences or network latency.
 
-### What is Clock Skew?
+### What is Client-Side Clock Skew?
 
-Clock skew addresses several common scenarios:
-- **Client-Server Time Difference**: When client and server clocks are not perfectly synchronized
-- **Network Latency**: Delay in token validation requests
-- **Token Refresh Timing**: Preventing premature token expiration
-- **Distributed Systems**: Multiple servers with slightly different times
+Clock skew in the client credentials flow addresses these scenarios:
+- **Clock Synchronization**: Small time differences between client and authorization server
+- **Network Latency**: Delays in token refresh requests
+- **Buffer Before Expiry**: Renew tokens before actual expiration to ensure continuity
+- **Distributed Systems**: Handling time variations across multiple service instances
 
-### Properties-Based Configuration
+### Java Configuration for Clock Skew
 
-You can configure clock skew tolerance using Spring Boot properties:
-
-```yaml
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          # Clock skew tolerance for token validation (default: 1 second)
-          clock-skew: 10000ms  # 10 seconds
-          # Alternative in seconds
-          clock-skew-in-seconds: 10
-```
-
-### Complete Configuration with Clock Skew
-
-```yaml
-spring:
-  security:
-    oauth2:
-      client:
-        registration:
-          keycloak:
-            client-id: ${KEYCLOAK_CLIENT_ID}
-            client-secret: ${KEYCLOAK_CLIENT_SECRET}
-            authorization-grant-type: client_credentials
-            client-authentication-method: basic
-            scope: api:read,api:write,admin
-        provider:
-          keycloak:
-            token-uri: ${KEYCLOAK_TOKEN_URI:http://localhost:8080/realms/your-realm/protocol/openid-connect/token}
-
-      resourceserver:
-        jwt:
-          # Clock skew tolerance for resource server validation
-          clock-skew: 15000ms  # 15 seconds
-          # Additional JWT validation properties
-          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8080/realms/your-realm/protocol/openid-connect/certs}
-          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/your-realm}
-```
-
-### Java Configuration Alternative
-
-For more granular control, you can configure clock skew programmatically:
+To configure clock skew for the client credentials provider, you need to customize the `OAuth2AuthorizedClientProvider`:
 
 ```java
 @Configuration
-@EnableWebSecurity
-public class SecurityConfig {
+public class OAuth2ClientConfig {
 
     @Bean
-    public JwtDecoder jwtDecoder() {
-        NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder =
-            NimbusJwtDecoder.withJwkSetUri("https://your-issuer/.well-known/jwks.json");
+    public OAuth2AuthorizedClientManager authorizedClientManager(
+            ClientRegistrationRepository clientRegistrationRepository,
+            OAuth2AuthorizedClientService authorizedClientService) {
 
-        // Configure clock skew tolerance
-        builder.clockSkew(Duration.ofSeconds(15));
+        OAuth2AuthorizedClientProvider authorizedClientProvider =
+            OAuth2AuthorizedClientProviderBuilder.builder()
+                .clientCredentials()
+                // Configure clock skew for client credentials flow
+                .clockSkew(Duration.ofSeconds(30))
+                .build();
 
-        return builder.build();
-    }
+        AuthorizedClientServiceOAuth2AuthorizedClientManager manager =
+            new AuthorizedClientServiceOAuth2AuthorizedClientManager(
+                clientRegistrationRepository, authorizedClientService);
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().authenticated()
-            )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt
-                    .decoder(jwtDecoder())
-                    .clockSkew(Duration.ofSeconds(10))
-                )
-            );
-        return http.build();
+        manager.setAuthorizedClientProvider(authorizedClientProvider);
+        return manager;
     }
 }
 ```
 
-### Client Credentials Flow with Clock Skew
-
-For client credentials flow, you can configure both client-side and server-side skew:
+### Complete Service Implementation with Clock Skew
 
 ```java
-@Bean
-public OAuth2AuthorizedClientManager authorizedClientManager(
-        ClientRegistrationRepository clientRegistrationRepository,
-        OAuth2AuthorizedClientService authorizedClientService) {
+@Service
+public class KeycloakTokenService {
 
-    OAuth2AuthorizedClientProvider authorizedClientProvider =
-        OAuth2AuthorizedClientProviderBuilder.builder()
-            .clientCredentials()
-            // Client-side clock skew for token requests
-            .clockSkew(Duration.ofSeconds(30))
+    private final OAuth2AuthorizedClientManager authorizedClientManager;
+
+    public KeycloakTokenService(OAuth2AuthorizedClientManager authorizedClientManager) {
+        this.authorizedClientManager = authorizedClientManager;
+    }
+
+    public String obtainAccessToken() {
+        Authentication principal = new UsernamePasswordAuthenticationToken("client-app", null);
+
+        OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+            .withClientRegistrationId("keycloak")
+            .principal(principal)
             .build();
 
-    AuthorizedClientServiceOAuth2AuthorizedClientManager manager =
-        new AuthorizedClientServiceOAuth2AuthorizedClientManager(
-            clientRegistrationRepository, authorizedClientService);
+        OAuth2AuthorizedClient authorizedClient =
+            authorizedClientManager.authorize(authorizeRequest);
 
-    manager.setAuthorizedClientProvider(authorizedClientProvider);
-    return manager;
+        return authorizedClient.getAccessToken().getTokenValue();
+    }
+
+    // Monitor token expiry for troubleshooting
+    public void logTokenStatus() {
+        Authentication principal = new UsernamePasswordAuthenticationToken("client-app", null);
+        OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+            .withClientRegistrationId("keycloak")
+            .principal(principal)
+            .build();
+
+        try {
+            OAuth2AuthorizedClient authorizedClient = authorizedClientManager.authorize(authorizeRequest);
+            OAuth2AccessToken token = authorizedClient.getAccessToken();
+
+            Instant now = Instant.now();
+            Duration timeUntilExpiry = Duration.between(now, token.getExpiresAt());
+
+            logger.info("Token expires in: {} seconds", timeUntilExpiry.getSeconds());
+            logger.info("Current time: {}, Token expiry: {}", now, token.getExpiresAt());
+
+        } catch (OAuth2AuthorizationException ex) {
+            logger.error("Failed to obtain token: {}", ex.getMessage());
+        }
+    }
 }
 ```
+
+### How Clock Skew Works in ClientCredentialsOAuth2AuthorizedClientProvider
+
+The provider uses the clock skew to determine when to refresh cached tokens:
+
+1. **Check Token Validity**: Provider checks if cached token exists and is valid
+2. **Calculate Expiry with Skew**: Considers token expired when `current time + clock skew > token expiry time`
+3. **Renew Early**: Requests new token before actual expiration to ensure continuity
+4. **Prevent Failures**: Avoids using tokens that might be rejected by the server
+
+**Example Logic:**
+- Token expires at: 12:00:00
+- Current time: 11:59:45
+- Clock skew: 30 seconds
+- **Decision**: Refresh token (because 11:59:45 + 30s > 12:00:00)
 
 ### Recommended Clock Skew Values
 
@@ -305,32 +295,97 @@ public OAuth2AuthorizedClientManager authorizedClientManager(
 
 ### Production Best Practices
 
-1. **Monitor Token Expiry**: Track token refresh patterns to identify skew issues
-2. **Use NTP**: Ensure all servers use Network Time Protocol synchronization
-3. **Test Clock Skew**: Simulate clock differences in testing environments
-4. **Log Skew Events**: Monitor when clock skew prevents token validation
-5. **Configure Appropriate Buffers**: Balance security with reliability
+1. **Monitor Token Refresh Patterns**: Track how often tokens are renewed
+2. **Adjust Skew Based on Metrics**: Use monitoring data to optimize skew values
+3. **Test in Different Environments**: Validate skew settings work across deployment scenarios
+4. **Log Token Lifecycle**: Monitor token expiry and refresh events
+5. **Balance Security and Reliability**: Larger skew improves reliability but reduces security
 
 ### Troubleshooting Clock Skew Issues
 
-Common symptoms of clock skew problems:
+Common symptoms of incorrect clock skew configuration:
 
 ```java
-// Log messages indicating clock skew issues
-logger.info("Token expired at: {}, Current time: {}, Skew: {}",
-    token.getExpiresAt(), Instant.now(), configuredSkew);
+// Add logging to diagnose skew issues
+@Bean
+public OAuth2AuthorizedClientManager authorizedClientManager(
+        ClientRegistrationRepository clientRegistrationRepository,
+        OAuth2AuthorizedClientService authorizedClientService) {
 
-// Custom error handling for skew-related failures
-try {
-    OAuth2AuthorizedClient authorizedClient = authorizedClientManager.authorize(authorizeRequest);
-    return authorizedClient.getAccessToken().getTokenValue();
-} catch (OAuth2AuthorizationException ex) {
-    if (ex.getError().getErrorCode().equals("invalid_token")) {
-        // Handle potential clock skew issue
-        logger.warn("Token validation failed, possible clock skew: {}", ex.getMessage());
-        throw new ClockSkewException("Clock skew detected, consider increasing skew tolerance");
-    }
-    throw ex;
+    OAuth2AuthorizedClientProvider authorizedClientProvider =
+        OAuth2AuthorizedClientProviderBuilder.builder()
+            .clientCredentials()
+            .clockSkew(Duration.ofSeconds(30))
+            .build();
+
+    return new AuthorizedClientServiceOAuth2AuthorizedClientManager(
+        clientRegistrationRepository, authorizedClientService) {
+
+        @Override
+        public OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest) {
+            try {
+                OAuth2AuthorizedClient client = super.authorize(authorizeRequest);
+                if (client != null && client.getAccessToken() != null) {
+                    logger.info("Token obtained, expires at: {}", client.getAccessToken().getExpiresAt());
+                }
+                return client;
+            } catch (OAuth2AuthorizationException ex) {
+                logger.error("Authorization failed: {}", ex.getError().toString());
+                throw ex;
+            }
+        }
+    };
+}
+```
+
+### Advanced Configuration with Custom Skew per Client
+
+For different clients requiring different skew values:
+
+```java
+@Bean
+public OAuth2AuthorizedClientManager authorizedClientManager(
+        ClientRegistrationRepository clientRegistrationRepository,
+        OAuth2AuthorizedClientService authorizedClientService) {
+
+    Map<String, OAuth2AuthorizedClientProvider> providerMap = new HashMap<>();
+
+    // Provider with 30-second skew for keycloak
+    providerMap.put("keycloak",
+        OAuth2AuthorizedClientProviderBuilder.builder()
+            .clientCredentials()
+            .clockSkew(Duration.ofSeconds(30))
+            .build());
+
+    // Provider with 60-second skew for external-api
+    providerMap.put("external-api",
+        OAuth2AuthorizedClientProviderBuilder.builder()
+            .clientCredentials()
+            .clockSkew(Duration.ofSeconds(60))
+            .build());
+
+    return new AuthorizedClientServiceOAuth2AuthorizedClientManager(
+        clientRegistrationRepository, authorizedClientService) {
+
+        @Override
+        public OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest) {
+            String clientRegistrationId = authorizeRequest.getClientRegistrationId();
+            OAuth2AuthorizedClientProvider provider = providerMap.get(clientRegistrationId);
+
+            if (provider != null) {
+                // Use custom provider for this client
+                OAuth2AuthorizationContext context = OAuth2AuthorizationContext
+                    .withClientRegistration(
+                        clientRegistrationRepository.findByRegistrationId(clientRegistrationId))
+                    .principal(authorizeRequest.getPrincipal())
+                    .build();
+
+                return provider.authorize(context);
+            }
+
+            return super.authorize(authorizeRequest);
+        }
+    };
 }
 ```
 
