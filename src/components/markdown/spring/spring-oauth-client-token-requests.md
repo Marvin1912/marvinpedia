@@ -176,4 +176,162 @@ Spring Boot automatically provides:
 
 For distributed applications, you can easily override the storage implementation with JDBC or Redis-based solutions.
 
-Spring Boot's auto-configuration approach provides a secure, maintainable, and production-ready way to implement OAuth2 client credentials flow while following industry best practices.
+## Token Expiry Skew Configuration
+
+Clock skew is the time difference between client and server systems, which can cause tokens to be rejected before their actual expiration. Spring Security provides configuration options to handle these timing discrepancies.
+
+### What is Clock Skew?
+
+Clock skew addresses several common scenarios:
+- **Client-Server Time Difference**: When client and server clocks are not perfectly synchronized
+- **Network Latency**: Delay in token validation requests
+- **Token Refresh Timing**: Preventing premature token expiration
+- **Distributed Systems**: Multiple servers with slightly different times
+
+### Properties-Based Configuration
+
+You can configure clock skew tolerance using Spring Boot properties:
+
+```yaml
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Clock skew tolerance for token validation (default: 1 second)
+          clock-skew: 10000ms  # 10 seconds
+          # Alternative in seconds
+          clock-skew-in-seconds: 10
+```
+
+### Complete Configuration with Clock Skew
+
+```yaml
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: ${KEYCLOAK_CLIENT_ID}
+            client-secret: ${KEYCLOAK_CLIENT_SECRET}
+            authorization-grant-type: client_credentials
+            client-authentication-method: basic
+            scope: api:read,api:write,admin
+        provider:
+          keycloak:
+            token-uri: ${KEYCLOAK_TOKEN_URI:http://localhost:8080/realms/your-realm/protocol/openid-connect/token}
+
+      resourceserver:
+        jwt:
+          # Clock skew tolerance for resource server validation
+          clock-skew: 15000ms  # 15 seconds
+          # Additional JWT validation properties
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8080/realms/your-realm/protocol/openid-connect/certs}
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/your-realm}
+```
+
+### Java Configuration Alternative
+
+For more granular control, you can configure clock skew programmatically:
+
+```java
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder =
+            NimbusJwtDecoder.withJwkSetUri("https://your-issuer/.well-known/jwks.json");
+
+        // Configure clock skew tolerance
+        builder.clockSkew(Duration.ofSeconds(15));
+
+        return builder.build();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt
+                    .decoder(jwtDecoder())
+                    .clockSkew(Duration.ofSeconds(10))
+                )
+            );
+        return http.build();
+    }
+}
+```
+
+### Client Credentials Flow with Clock Skew
+
+For client credentials flow, you can configure both client-side and server-side skew:
+
+```java
+@Bean
+public OAuth2AuthorizedClientManager authorizedClientManager(
+        ClientRegistrationRepository clientRegistrationRepository,
+        OAuth2AuthorizedClientService authorizedClientService) {
+
+    OAuth2AuthorizedClientProvider authorizedClientProvider =
+        OAuth2AuthorizedClientProviderBuilder.builder()
+            .clientCredentials()
+            // Client-side clock skew for token requests
+            .clockSkew(Duration.ofSeconds(30))
+            .build();
+
+    AuthorizedClientServiceOAuth2AuthorizedClientManager manager =
+        new AuthorizedClientServiceOAuth2AuthorizedClientManager(
+            clientRegistrationRepository, authorizedClientService);
+
+    manager.setAuthorizedClientProvider(authorizedClientProvider);
+    return manager;
+}
+```
+
+### Recommended Clock Skew Values
+
+| Environment | Recommended Skew | Reason |
+|-------------|------------------|---------|
+| **Local Development** | 1-5 seconds | Minimal latency, synchronized clocks |
+| **Cloud Infrastructure** | 10-30 seconds | Network latency, distributed systems |
+| **High Latency Networks** | 30-60 seconds | Significant network delays |
+| **Edge Computing** | 60+ seconds | Unreliable network connections |
+
+### Production Best Practices
+
+1. **Monitor Token Expiry**: Track token refresh patterns to identify skew issues
+2. **Use NTP**: Ensure all servers use Network Time Protocol synchronization
+3. **Test Clock Skew**: Simulate clock differences in testing environments
+4. **Log Skew Events**: Monitor when clock skew prevents token validation
+5. **Configure Appropriate Buffers**: Balance security with reliability
+
+### Troubleshooting Clock Skew Issues
+
+Common symptoms of clock skew problems:
+
+```java
+// Log messages indicating clock skew issues
+logger.info("Token expired at: {}, Current time: {}, Skew: {}",
+    token.getExpiresAt(), Instant.now(), configuredSkew);
+
+// Custom error handling for skew-related failures
+try {
+    OAuth2AuthorizedClient authorizedClient = authorizedClientManager.authorize(authorizeRequest);
+    return authorizedClient.getAccessToken().getTokenValue();
+} catch (OAuth2AuthorizationException ex) {
+    if (ex.getError().getErrorCode().equals("invalid_token")) {
+        // Handle potential clock skew issue
+        logger.warn("Token validation failed, possible clock skew: {}", ex.getMessage());
+        throw new ClockSkewException("Clock skew detected, consider increasing skew tolerance");
+    }
+    throw ex;
+}
+```
+
+Spring Boot's auto-configuration approach provides a secure, maintainable, and production-ready way to implement OAuth2 client credentials flow while following industry best practices, including proper handling of clock skew scenarios.
