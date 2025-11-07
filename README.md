@@ -4,9 +4,9 @@ Marvinpedia is a modern, personal knowledge management system built with Vue 3 a
 
 ## 🎯 Purpose
 
-Marvinpedia is your personal digital brain for technical knowledge. Whether you're a developer, engineer, or technical professional, this system provides a centralized, organized space to:
+Marvinpedia is a personal digital brain for technical knowledge. Whether as a developer, engineer, or technical professional, this system provides a centralized, organized space to:
 
-- **Store** technical notes and insights from your learning journey
+- **Store** technical notes and insights from a learning journey
 - **Organize** knowledge by technology domains and topics
 - **Access** quick reference materials and code examples
 - **Maintain** a personal library of solutions and best practices
@@ -101,62 +101,3 @@ fileName: "file-name"
 ```javascript
 // Your code snippet
 ```
-
-## Notes
-Your technical insights and explanations...
-```
-
-### Content Structure
-- Each article requires YAML front matter with `id`, `name`, `topic`, and `fileName`
-- Content is written in standard Markdown format
-- Code blocks are automatically syntax-highlighted
-- Articles are automatically discovered and added to navigation
-
-## 🛠️ **Technology Stack**
-
-- **Frontend**: Vue 3.5.12 + TypeScript
-- **Routing**: Vue Router 4.0.13
-- **Build Tool**: Vite 5.4.10
-- **Markdown**: markdown-it 14.1.0 + front-matter
-- **Syntax Highlighting**: highlight.js 11.11.1
-- **Styling**: Modern CSS with responsive design
-
-## 🎯 **Use Cases**
-
-Perfect for:
-- **Personal learning journal**: Document your programming journey
-- **Code snippet library**: Store reusable code patterns
-- **Technical reference**: Quick access to implementation details
-- **Team knowledge sharing**: Share insights with your team
-- **Interview preparation**: Organize technical concepts and examples
-- **Project notes**: Maintain project-specific insights
-
-## 🔒 **Privacy-Focused**
-
-This is designed as a **private knowledge management system**:
-- No external dependencies or data collection
-- All content stored locally in your repository
-- Complete control over your knowledge base
-- Can be deployed privately or hosted on your infrastructure
-
-## 📱 **Responsive Design**
-
-- **Desktop**: Full-featured interface with sidebar navigation
-- **Tablet**: Optimized layout with touch-friendly interactions
-- **Mobile**: Streamlined interface with collapsible navigation
-
-## 🤝 **Contributing**
-
-This is a personal knowledge system, but contributions are welcome:
-1. Fork the repository
-2. Create a feature branch
-3. Add your knowledge or improvements
-4. Submit a pull request
-
-## 📄 **License**
-
-This project is open source and available under the MIT License.
-
----
-
-**Marvinpedia** - Your personal knowledge companion for technical excellence.
