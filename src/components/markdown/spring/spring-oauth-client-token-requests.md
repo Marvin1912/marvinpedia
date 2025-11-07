@@ -11,21 +11,21 @@ Spring Security provides comprehensive support for the OAuth2 client credentials
 
 ## Core Client Components
 
-### Client Registration
+### Spring Boot Auto-Configuration
 
-The `ClientRegistration` class is the foundation of Spring's OAuth2 client support, representing a registered client with an OAuth2 provider.
+Spring Boot automatically configures all OAuth2 client components when you provide the necessary properties. This eliminates the need for manual bean creation and follows Spring Boot's convention-over-configuration approach.
 
-**Key Components:**
-- **Client ID**: Unique identifier for the client application
-- **Client Secret**: Confidential credential for the client
-- **Authentication Methods**: How the client authenticates with the token endpoint
-- **Grant Type**: Specifically `CLIENT_CREDENTIALS` for this flow
-- **Scopes**: Permissions requested by the client application
-- **Provider Metadata**: Token endpoint URL and provider configuration
+**Auto-Configured Components:**
+- **ClientRegistrationRepository**: Automatically created from properties
+- **OAuth2AuthorizedClientService**: Configured with appropriate storage implementation
+- **AuthorizedClientServiceOAuth2AuthorizedClientManager**: Set up for background/scheduled operations
+- **OAuth2AuthorizedClientProvider**: Configured for client credentials flow
 
-### AuthorizedClientServiceOAuth2AuthorizedClientManager
-
-This implementation of `OAuth2AuthorizedClientManager` is specifically designed to operate outside of HTTP request contexts (e.g., in background threads, scheduled jobs, or service-tier components). It uses an `OAuth2AuthorizedClientService` to persist and retrieve authorized clients.
+**Property-Based Configuration Benefits:**
+- **Zero Code Configuration**: No Java configuration classes needed
+- **Environment-Specific Settings**: Easy to change configuration per environment
+- **Security**: Secrets can be externalized and managed properly
+- **Maintainability**: Configuration is centralized in properties files
 
 ## Client Credentials Flow
 
@@ -45,53 +45,36 @@ The client credentials flow is used when applications need to access resources o
 - **Short-lived Tokens**: Access tokens typically have shorter expiration times
 - **No Refresh Tokens**: This flow doesn't support refresh tokens
 
-### Spring Configuration
+### Spring Boot Configuration
 
-```java
-@Configuration
-public class OAuth2ClientConfig {
+With Spring Boot's auto-configuration, you can configure OAuth2 clients entirely through properties. No manual bean configuration is required.
 
-    @Bean
-    public ClientRegistrationRepository clientRegistrations() {
-        return new InMemoryClientRegistrationRepository(
-            ClientRegistration.withRegistrationId("keycloak")
-                .clientId("your-client-id")
-                .clientSecret("your-client-secret")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                .scope("read", "write")
-                .tokenUri("http://localhost:8080/realms/your-realm/protocol/openid-connect/token")
-                .build()
-        );
-    }
-
-    @Bean
-    public OAuth2AuthorizedClientService authorizedClientService(
-            ClientRegistrationRepository clientRegistrationRepository) {
-        return new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
-    }
-
-    @Bean
-    public OAuth2AuthorizedClientManager authorizedClientManager(
-            ClientRegistrationRepository clientRegistrationRepository,
-            OAuth2AuthorizedClientService authorizedClientService) {
-
-        OAuth2AuthorizedClientProvider authorizedClientProvider =
-            OAuth2AuthorizedClientProviderBuilder.builder()
-                .clientCredentials()
-                .build();
-
-        AuthorizedClientServiceOAuth2AuthorizedClientManager authorizedClientManager =
-            new AuthorizedClientServiceOAuth2AuthorizedClientManager(
-                clientRegistrationRepository, authorizedClientService);
-        authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
-
-        return authorizedClientManager;
-    }
-}
+```yaml
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: your-client-id
+            client-secret: your-client-secret
+            authorization-grant-type: client_credentials
+            client-authentication-method: basic
+            scope: read,write
+        provider:
+          keycloak:
+            token-uri: http://localhost:8080/realms/your-realm/protocol/openid-connect/token
 ```
 
+Spring Boot will automatically:
+- Create the `ClientRegistrationRepository` bean
+- Configure the `OAuth2AuthorizedClientService`
+- Set up the `AuthorizedClientServiceOAuth2AuthorizedClientManager`
+- Apply the client credentials provider
+
 ### Service Implementation
+
+With Spring Boot's auto-configuration, you can directly inject the `OAuth2AuthorizedClientManager`:
 
 ```java
 @Service
@@ -103,11 +86,11 @@ public class KeycloakTokenService {
         this.authorizedClientManager = authorizedClientManager;
     }
 
-    public String obtainAccessToken(String clientId) {
+    public String obtainAccessToken() {
         Authentication principal = new UsernamePasswordAuthenticationToken("client-app", null);
 
         OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
-            .withClientRegistrationId(clientId)
+            .withClientRegistrationId("keycloak")
             .principal(principal)
             .build();
 
@@ -118,6 +101,8 @@ public class KeycloakTokenService {
     }
 }
 ```
+
+**Note**: Spring Boot automatically creates the `OAuth2AuthorizedClientManager` bean when OAuth2 client properties are configured.
 
 ## Principal Significance in Client Credentials Flow
 
@@ -134,43 +119,61 @@ In the client credentials flow, the principal parameter has limited significance
 3. Requested scopes are allowed for the client
 4. Token endpoint is properly configured
 
-## Keycloak Configuration Example
+## Configuration Property Reference
 
-```java
-@Bean
-public ClientRegistration keycloakClientRegistration() {
-    return ClientRegistration.withRegistrationId("keycloak")
-        .clientId("your-client-id")
-        .clientSecret("your-client-secret")
-        .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-        .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-        .scope("api:read", "api:write", "admin")
-        .tokenUri("http://localhost:8080/realms/your-realm/protocol/openid-connect/token")
-        .build();
-}
+### Client Registration Properties
+
+For Keycloak configuration, use these properties in your `application.yml`:
+
+```yaml
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            # Required: Client identifier from Keycloak
+            client-id: ${KEYCLOAK_CLIENT_ID}
+            # Required: Client secret from Keycloak
+            client-secret: ${KEYCLOAK_CLIENT_SECRET}
+            # Required: Use client credentials flow
+            authorization-grant-type: client_credentials
+            # Required: How to authenticate with token endpoint
+            client-authentication-method: basic
+            # Optional: Comma-separated list of scopes
+            scope: api:read,api:write,admin
+        provider:
+          keycloak:
+            # Required: Keycloak token endpoint URL
+            token-uri: ${KEYCLOAK_TOKEN_URI:http://localhost:8080/realms/your-realm/protocol/openid-connect/token}
 ```
+
+**Environment Variable Support:**
+- `${KEYCLOAK_CLIENT_ID}`: Your Keycloak client ID
+- `${KEYCLOAK_CLIENT_SECRET}`: Your Keycloak client secret
+- `${KEYCLOAK_TOKEN_URI}`: Keycloak token endpoint URL
 
 ## Token Persistence and Caching
 
 The `AuthorizedClientServiceOAuth2AuthorizedClientManager` automatically handles token persistence through the `OAuth2AuthorizedClientService`:
 
-### Built-in Persistence Benefits
+### Spring Boot Auto-Configuration Benefits
 
-- **Automatic Token Storage**: Tokens are automatically saved in the authorized client service
-- **Token Reuse**: Valid tokens are retrieved from storage instead of requesting new ones
-- **Spring Security Integration**: Follows Spring Security's standard patterns and lifecycle management
-- **Automatic Cleanup**: Invalid tokens are automatically removed during authorization failures
+- **Automatic Token Management**: Tokens are automatically cached and reused until expiration
+- **Zero Code Configuration**: No manual bean creation required
+- **Environment Flexibility**: Easy to switch between different OAuth2 providers
+- **Built-in Security**: Follows Spring Security best practices automatically
+- **Production Ready**: Configured with appropriate defaults for client credentials flow
 
-### Default Behavior
+### Default Storage Implementation
 
-- **Success Handler**: Automatically saves authorized clients in the `OAuth2AuthorizedClientService`
-- **Failure Handler**: Removes invalid authorized clients (e.g., when refresh tokens expire)
-- **Context Mapping**: Properly handles OAuth2 scopes and authorization context
+Spring Boot automatically provides:
 
-### Service Implementation Options
+- **InMemoryOAuth2AuthorizedClientService**: Default storage for single-instance applications
+- **Automatic Token Caching**: Tokens are cached until they expire
+- **Smart Token Refresh**: Automatically requests new tokens when needed
+- **Failure Handling**: Proper cleanup of invalid tokens
 
-- **InMemoryOAuth2AuthorizedClientService**: Simple in-memory storage (default)
-- **JdbcOAuth2AuthorizedClientService**: Database persistence for distributed applications
-- **Custom implementations**: Redis or other external storage solutions
+For distributed applications, you can easily override the storage implementation with JDBC or Redis-based solutions.
 
-Spring Security's client credentials flow provides a secure and straightforward way to implement machine-to-machine authentication while following OAuth2 standards and security best practices.
+Spring Boot's auto-configuration approach provides a secure, maintainable, and production-ready way to implement OAuth2 client credentials flow while following industry best practices.
