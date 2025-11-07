@@ -23,9 +23,9 @@ The `ClientRegistration` class is the foundation of Spring's OAuth2 client suppo
 - **Scopes**: Permissions requested by the client application
 - **Provider Metadata**: Token endpoint URL and provider configuration
 
-### OAuth2AuthorizedClientManager
+### AuthorizedClientServiceOAuth2AuthorizedClientManager
 
-This interface manages the lifecycle of authorized clients and handles token acquisition for the client credentials flow.
+This implementation of `OAuth2AuthorizedClientManager` is specifically designed to operate outside of HTTP request contexts (e.g., in background threads, scheduled jobs, or service-tier components). It uses an `OAuth2AuthorizedClientService` to persist and retrieve authorized clients.
 
 ## Client Credentials Flow
 
@@ -66,18 +66,24 @@ public class OAuth2ClientConfig {
     }
 
     @Bean
+    public OAuth2AuthorizedClientService authorizedClientService(
+            ClientRegistrationRepository clientRegistrationRepository) {
+        return new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
+    }
+
+    @Bean
     public OAuth2AuthorizedClientManager authorizedClientManager(
             ClientRegistrationRepository clientRegistrationRepository,
-            OAuth2AuthorizedClientRepository authorizedClientRepository) {
+            OAuth2AuthorizedClientService authorizedClientService) {
 
         OAuth2AuthorizedClientProvider authorizedClientProvider =
             OAuth2AuthorizedClientProviderBuilder.builder()
                 .clientCredentials()
                 .build();
 
-        DefaultOAuth2AuthorizedClientManager authorizedClientManager =
-            new DefaultOAuth2AuthorizedClientManager(
-                clientRegistrationRepository, authorizedClientRepository);
+        AuthorizedClientServiceOAuth2AuthorizedClientManager authorizedClientManager =
+            new AuthorizedClientServiceOAuth2AuthorizedClientManager(
+                clientRegistrationRepository, authorizedClientService);
         authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 
         return authorizedClientManager;
@@ -85,28 +91,19 @@ public class OAuth2ClientConfig {
 }
 ```
 
-### Token Service Implementation with Caching
+### Service Implementation
 
 ```java
 @Service
 public class KeycloakTokenService {
 
     private final OAuth2AuthorizedClientManager authorizedClientManager;
-    private final Map<String, CachedToken> tokenCache = new ConcurrentHashMap<>();
 
     public KeycloakTokenService(OAuth2AuthorizedClientManager authorizedClientManager) {
         this.authorizedClientManager = authorizedClientManager;
     }
 
     public String obtainAccessToken(String clientId) {
-        CachedToken cachedToken = tokenCache.get(clientId);
-
-        // Check if we have a valid cached token
-        if (cachedToken != null && !cachedToken.isExpired()) {
-            return cachedToken.getTokenValue();
-        }
-
-        // Token is expired or not cached, request new one
         Authentication principal = new UsernamePasswordAuthenticationToken("client-app", null);
 
         OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
@@ -117,31 +114,7 @@ public class KeycloakTokenService {
         OAuth2AuthorizedClient authorizedClient =
             authorizedClientManager.authorize(authorizeRequest);
 
-        String newToken = authorizedClient.getAccessToken().getTokenValue();
-        OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
-
-        // Cache the new token
-        tokenCache.put(clientId, new CachedToken(newToken, accessToken.getExpiresAt()));
-
-        return newToken;
-    }
-
-    private static class CachedToken {
-        private final String tokenValue;
-        private final Instant expiresAt;
-
-        public CachedToken(String tokenValue, Instant expiresAt) {
-            this.tokenValue = tokenValue;
-            this.expiresAt = expiresAt;
-        }
-
-        public String getTokenValue() {
-            return tokenValue;
-        }
-
-        public boolean isExpired() {
-            return Instant.now().isAfter(expiresAt.minusSeconds(60)); // 60-second buffer
-        }
+        return authorizedClient.getAccessToken().getTokenValue();
     }
 }
 ```
@@ -177,22 +150,27 @@ public ClientRegistration keycloakClientRegistration() {
 }
 ```
 
-## Token Caching Benefits
+## Token Persistence and Caching
 
-The integrated in-memory caching in `KeycloakTokenService` provides:
+The `AuthorizedClientServiceOAuth2AuthorizedClientManager` automatically handles token persistence through the `OAuth2AuthorizedClientService`:
 
-- **Reduced Network Calls**: Avoids repeated token requests to OAuth2 provider
-- **Improved Performance**: Faster token retrieval for subsequent requests
-- **Simple Implementation**: No external dependencies required
-- **Automatic Expiration**: Tokens naturally expire when no longer valid
+### Built-in Persistence Benefits
 
-### Considerations
+- **Automatic Token Storage**: Tokens are automatically saved in the authorized client service
+- **Token Reuse**: Valid tokens are retrieved from storage instead of requesting new ones
+- **Spring Security Integration**: Follows Spring Security's standard patterns and lifecycle management
+- **Automatic Cleanup**: Invalid tokens are automatically removed during authorization failures
 
-- **Application Restart**: Cached tokens are lost on application restart
-- **Memory Usage**: Cache size grows with the number of different clients
-- **Distributed Applications**: Each instance maintains its own cache
-- **Token Expiration**: 60-second buffer ensures tokens are refreshed before actual expiration
+### Default Behavior
 
-For distributed applications or scenarios requiring persistence across restarts, consider using Redis or database-based token caching instead of in-memory storage.
+- **Success Handler**: Automatically saves authorized clients in the `OAuth2AuthorizedClientService`
+- **Failure Handler**: Removes invalid authorized clients (e.g., when refresh tokens expire)
+- **Context Mapping**: Properly handles OAuth2 scopes and authorization context
 
-Spring Security's client credentials flow support provides a secure and straightforward way to implement machine-to-machine authentication while following OAuth2 standards and security best practices.
+### Service Implementation Options
+
+- **InMemoryOAuth2AuthorizedClientService**: Simple in-memory storage (default)
+- **JdbcOAuth2AuthorizedClientService**: Database persistence for distributed applications
+- **Custom implementations**: Redis or other external storage solutions
+
+Spring Security's client credentials flow provides a secure and straightforward way to implement machine-to-machine authentication while following OAuth2 standards and security best practices.
