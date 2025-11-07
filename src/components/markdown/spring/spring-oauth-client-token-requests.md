@@ -176,4 +176,46 @@ Spring Boot automatically provides:
 
 For distributed applications, you can easily override the storage implementation with JDBC or Redis-based solutions.
 
-Spring Boot's auto-configuration approach provides a secure, maintainable, and production-ready way to implement OAuth2 client credentials flow while following industry best practices.
+## Client Credentials Provider Clock Skew Configuration
+
+The `ClientCredentialsOAuth2AuthorizedClientProvider` supports clock skew configuration to handle timing discrepancies when determining whether cached tokens need to be refreshed.
+
+### What is Client-Side Clock Skew?
+
+Clock skew in the client credentials flow addresses these scenarios:
+- **Clock Synchronization**: Small time differences between client and authorization server
+- **Network Latency**: Delays in token refresh requests
+- **Buffer Before Expiry**: Renew tokens before actual expiration to ensure continuity
+- **Distributed Systems**: Handling time variations across multiple service instances
+
+### Java Configuration for Clock Skew
+
+To configure clock skew for the client credentials provider, you need to customize the `OAuth2AuthorizedClientProvider`:
+
+```java
+@Configuration
+public class OAuth2ClientConfig {
+
+    @Bean
+    public OAuth2AuthorizedClientManager authorizedClientManager(
+            ClientRegistrationRepository clientRegistrationRepository,
+            OAuth2AuthorizedClientService authorizedClientService) {
+
+        OAuth2AuthorizedClientProvider authorizedClientProvider =
+            OAuth2AuthorizedClientProviderBuilder.builder()
+                .clientCredentials()
+                // Configure clock skew for client credentials flow
+                .clockSkew(Duration.ofSeconds(30))
+                .build();
+
+        AuthorizedClientServiceOAuth2AuthorizedClientManager manager =
+            new AuthorizedClientServiceOAuth2AuthorizedClientManager(
+                clientRegistrationRepository, authorizedClientService);
+
+        manager.setAuthorizedClientProvider(authorizedClientProvider);
+        return manager;
+    }
+}
+```
+
+Spring Boot's auto-configuration approach provides a secure, maintainable, and production-ready way to implement OAuth2 client credentials flow while following industry best practices, including proper handling of clock skew scenarios.
